@@ -1,0 +1,4 @@
+2010-03-05  Mirko Vukovic  <mv@CYSSHD1>
+
+	* mv-gsll.lisp (match-vec-element): Added match-vec-element
+
