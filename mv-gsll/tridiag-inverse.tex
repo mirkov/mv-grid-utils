@@ -1,0 +1,101 @@
+\documentclass[12pt]{article}%
+\usepackage{chicago}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}%
+\setcounter{MaxMatrixCols}{30}
+%TCIDATA{OutputFilter=latex2.dll}
+%TCIDATA{Version=5.50.0.2953}
+%TCIDATA{CSTFile=TTCA-BriefReport.cst}
+%TCIDATA{Created=Wednesday, January 06, 2010 23:01:21}
+%TCIDATA{LastRevised=Friday, January 08, 2010 11:51:01}
+%TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
+%TCIDATA{<META NAME="SaveForMode" CONTENT="1">}
+%TCIDATA{BibliographyScheme=BibTeX}
+%TCIDATA{<META NAME="DocumentShell" CONTENT="TTCA shells\TTCA-BriefReport">}
+%BeginMSIPreambleData
+\providecommand{\U}[1]{\protect\rule{.1in}{.1in}}
+%EndMSIPreambleData
+\begin{document}
+
+\title{Title}
+\author{Author}
+\maketitle
+
+Consider the following matrix%
+\begin{equation}
+T=\left(
+\begin{array}
+[c]{ccc}%
+1 & 2 & 0\\
+2 & 1 & 2\\
+0 & 2 & 1
+\end{array}
+\right)
+\end{equation}
+whose determinant is $-7$.
+
+We now calculate $\theta$%
+\begin{equation}
+\theta_{i}=a_{i}\theta_{i-1}-b_{i-1}c_{i-1}\theta_{i-2}%
+\end{equation}
+with
+\begin{align}
+\theta_{0}  &  =1\\
+\theta_{1}  &  =a_{1}=1
+\end{align}
+We get%
+\begin{align}
+\theta_{2}  &  =a_{2}\theta_{1}-b_{1}c_{1}\theta_{0}\\
+&  =1\times1-2\times2\times1\\
+&  =-3
+\end{align}
+and%
+\begin{align}
+\theta_{3}  &  =1\times\left(  -3\right)  -2\times2\times1\\
+&  =-7
+\end{align}
+
+
+For $\phi$%
+\begin{equation}
+\phi_{i}=a_{i}\phi_{i+1}-b_{i}c_{i}\phi_{i+2}%
+\end{equation}
+For our matrix this is%
+\begin{equation}
+\phi_{i}=\phi_{i+1}-4\phi_{i+2}%
+\end{equation}
+with
+\begin{align}
+\phi_{4} &  =1\\
+\phi_{3} &  =a_{3}=1
+\end{align}
+We get%
+\begin{align}
+\phi_{2} &  =\phi_{3}-4\phi_{4}\\
+&  =1-4\\
+&  =-3
+\end{align}
+and%
+\begin{align}
+\phi_{1} &  =\phi_{2}-4\phi_{3}\\
+&  =-3-4\\
+&  =-7
+\end{align}%
+\begin{equation}
+T=\left(
+\begin{array}
+[c]{ccc}%
+0 & 2 & 0\\
+0 & 0 & 2\\
+0 & 0 & 0
+\end{array}
+\right)
+\end{equation}
+
+
+\bibliographystyle{CHICAGO}
+\bibliography{CommonAbbrevs,JournalNameAbbrevs}
+
+\end{document}

@@ -1,3 +1,38 @@
+2010-12-08  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* grid-function-declarations.lisp (*one-arg-functions*): Changed
+	signum's declaration to expect a complex-double-float.  This is
+	the most general solution.  However, I think I should have two
+	signums: grid-signum and grid-signum-complex to handle the various
+	possiblities
+
+	* grid-functions-unit-tests.lisp (:mv-gsll): Moved unit testing to
+	the mv-gsll package, because I am using a lot of internal
+	functions.  I need to change testing to internal and external.
+
+2010-12-01  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* grid-utilities.lisp (gmap): Modified gmap by adding code for
+	:destination-specification
+	(gsmap): New function for processing multiple gridS in parallel.
+	It is the old gmap.
+
+2010-11-15  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* utilities.lisp: (lseq, xpseq, matrify): Commented out after
+	update to latest gsll. I have to sort this out
+
+2010-04-07  Mirko Vukovic  <mv@CYSSHD1>
+
+	* utilities.lisp (reduce-0, reduce-1): added the function and
+	their unit tests.
+
+2010-03-23    <977315@WTEHDZYYN71>
+
+	* 2nd-order-ode.lisp (setup-tridiag-11): Fixed sign error in the
+	second derivative coefficients (all members that had DELTA^2.  But
+	that begs the question, how did the unit tests pass?
+
 2010-03-05  Mirko Vukovic  <mv@CYSSHD1>
 
 	* mv-gsll.lisp (match-vec-element): Added match-vec-element
