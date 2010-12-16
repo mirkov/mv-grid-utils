@@ -1,0 +1,8 @@
+
+
+
+To do:
+
+Allow grid mapping of cl math functions such as sqrt that
+can emit a complex with a real argument (sqrt -1) and accept
+a complex argument (sqrt #c(0 1)). 
