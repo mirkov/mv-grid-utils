@@ -1,4 +1,4 @@
-(in-package :mv-gsll-unit-tests)
+(in-package :mv-grid-unit-tests)
 
 
 (defparameter +array-3-4-double-float+
@@ -12,7 +12,7 @@
 			   (grid:copy-to ,grid2)))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (setf mv-gsll:*array-type* 'grid:foreign-array))
+  (setf mv-grid:*array-type* 'grid:foreign-array))
 
 (define-test indgen
   (assert-grid-equal #15m(0 1 2)
@@ -33,7 +33,7 @@
      v2 (gmap #'identity v1))
     (assert-grid-equal
      v3
-     (gmap #'+ v1 v2))
+     (gsmap #'+ v1 v2))
 #|    (assert-grid-equal
      v3
      (gmap #'+ v1 v4))|#))
@@ -70,7 +70,7 @@
 
 (define-test read-grid
   (with-open-file (stream
-		   #P"/home/mv/my-software-add-ons/my-lisp/mv-gsll/2d-grid-data.txt"
+		   #P"/home/mv/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.txt"
 		   :direction :input) 
     (assert-grid-equal #1m((1d0 2d0 3d0) (4d0 5d0 6d0))
 			    (read-grid '(2 3) stream))))

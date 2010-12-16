@@ -1,18 +1,18 @@
-(asdf:defsystem mv-gsll
-  :name "mv-gsll"
+(asdf:defsystem mv-grid
+  :name "mv-grid"
   :author "Mirko Vukovic <mirko.vukovic@gmail.com>"
   :version "0.1"
-  :description "utilities built on top of gsll & grid"
+  :description "utilities built on top of grid"
   :components
   ((:module "base"
 	    :pathname #P"./"
-	    :components ((:file "mv-gsll-package-def")
+	    :components ((:file "mv-grid-package-def")
 			 (:file "grid-utilities"
-				:depends-on ("mv-gsll-package-def"))
-			 #|(:file "grid-utilities-unit-tests"
-				:depends-on ("mv-gsll-package-def"
-					     "grid-utilities"))|#))
-   (:module "grid-functions"
+				:depends-on ("mv-grid-package-def"))
+			 (:file "grid-utilities-unit-tests"
+				:depends-on ("mv-grid-package-def"
+					     "grid-utilities"))))
+   (:module "math-functions"
 	    :pathname #P"./"
 	    :depends-on ("base")
 	    :components ((:file "grid-function-declarations")
@@ -21,16 +21,8 @@
 				:depends-on ("grid-function-declarations"
 					     "grid-function-generators"))
 			 (:file "grid-functions-unit-tests"
-				:depends-on ("grid-function-instantiations")))))
-   #|(:module "ode"
-   :pathname #P"./"
-   :depends-on ("base")
-   :components
-   ((:file "2nd-order-ode")
-   (:file "2nd-order-ode-unit-tests"
-   :depends-on ("2nd-order-ode"))))|#
+				:depends-on ("grid-function-instantiations"))))
     :depends-on (:cl-utilities
-		 ;;:gsll
 		 :grid
 		 :iterate
 		 :lisp-unit

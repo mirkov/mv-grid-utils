@@ -7,7 +7,7 @@
 ;;;; The defined functions are named grid-foo where foo is the
 ;;;; descriptive part, such as `sin'
 
-(in-package :mv-gsll)
+(in-package :mv-grid)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (do-fundef (*one-arg-functions*)

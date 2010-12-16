@@ -1,4 +1,4 @@
-(in-package :mv-gsll)
+(in-package :mv-grid)
 
 ;;; Define special variables that will be used in the tests.  These
 ;;; include the grids and test definitions.
@@ -80,42 +80,42 @@ the arguments used for testing that particular type.")
 
 (defun cl-calc (fun arg)
   "Map cl function `fun' on a grid `arg' and return a cl array"
-  (map 'vector fun (grid:copy-to arg)))
+  (map 'vector fun (copy-to arg)))
 
 (defgeneric cl-calc-2 (fun arg1 arg2)
   (:documentation "Evaluate function of two arguments, looping over
   one or both as necessary.  Vector arguments are of grid type.  The
   return values is a native cl array.")
-  (:method (fun (arg1 grid::vector-double-float) (arg2 double-float))
+  (:method (fun (arg1 vector-double-float) (arg2 double-float))
     (map 'vector #'(lambda (vec-arg)
-		     (funcall fun vec-arg arg2)) (grid:copy-to arg1)))
-  (:method (fun (arg1 grid::vector-double-float) (arg2 grid:vector-double-float))
+		     (funcall fun vec-arg arg2)) (copy-to arg1)))
+  (:method (fun (arg1 vector-double-float) (arg2 vector-double-float))
     (map 'vector #'(lambda (vec-arg1 vec-arg2)
 		     (funcall fun vec-arg1 vec-arg2))
-	 (grid:copy-to arg1) (grid:copy-to arg2)))
-  (:method (fun (arg1 double-float) (arg2 grid:vector-double-float))
+	 (copy-to arg1) (copy-to arg2)))
+  (:method (fun (arg1 double-float) (arg2 vector-double-float))
     (map 'vector #'(lambda (vec-arg)
-		     (funcall fun arg1 vec-arg)) (grid:copy-to arg2))))
+		     (funcall fun arg1 vec-arg)) (copy-to arg2))))
   
 (defun grid-calc (fun arg)
   "Invoke a grid function `fun' (such as grid-sin) on a grid `arg' and
 return a cl array"
-  (grid:copy-to (funcall fun arg)))
+  (copy-to (funcall fun arg)))
   
 
 (defgeneric grid-calc-2 (fun arg1 arg2)
   (:documentation "Evaluate grid-mapping function corresponding to cl
 function `fun' of two arguments `arg1' and `arg2'.  The vector
 arguments are of grid type.  The return values is a native cl array.")
-  (:method (fun (arg1 grid::vector-double-float) (arg2 double-float))
-    (grid:copy-to
-     (funcall (mv-gsll::grid-fun-name fun "GS") arg1 arg2)))
-  (:method (fun (arg1 grid::vector-double-float) (arg2 grid:vector-double-float))
-    (grid:copy-to
-     (funcall (mv-gsll::grid-fun-name fun "GG") arg1 arg2)))
-  (:method (fun (arg1 double-float) (arg2 grid:vector-double-float))
-    (grid:copy-to
-     (funcall (mv-gsll::grid-fun-name fun "SG") arg1 arg2))))
+  (:method (fun (arg1 vector-double-float) (arg2 double-float))
+    (copy-to
+     (funcall (grid-fun-name fun "GS") arg1 arg2)))
+  (:method (fun (arg1 vector-double-float) (arg2 vector-double-float))
+    (copy-to
+     (funcall (grid-fun-name fun "GG") arg1 arg2)))
+  (:method (fun (arg1 double-float) (arg2 vector-double-float))
+    (copy-to
+     (funcall (grid-fun-name fun "SG") arg1 arg2))))
 
 
 
@@ -128,7 +128,7 @@ are obtained from the `*one-arg-func-test-def*'"
 			(assoc ,grid-fun
 			       *one-arg-func-test-def*)))))
      (assert-numerical-equal
-      (cl-calc ,cl-fun (grid:copy-to arg))
+      (cl-calc ,cl-fun (copy-to arg))
       (grid-calc ,grid-fun arg)
       ',grid-fun )))
 
@@ -146,19 +146,19 @@ are obtained from the `*one-arg-func-test-def*'"
 ;; this is a more explicit version of the next test
 (define-test one-arg-func-test--all
   ;; test correctness of all one-argument functions
-  (do-fundef (mv-gsll::*one-arg-functions*)
+  (do-fundef (*one-arg-functions*)
     (let ((argument (fun-arg fun)))
       (print fun)
       (assert-numerical-equal
        (cl-calc  fun argument)
-       (grid-calc (mv-gsll::grid-fun-name fun) argument))
+       (grid-calc (grid-fun-name fun) argument))
        fun)))
 |#
 
 (define-test one-arg-func-test--all
   ;; test correctness of all one-argument functions
-  (do-fundef (mv-gsll::*one-arg-functions*)
-    (assert-grid-cl-equal-1 fun (mv-gsll::grid-fun-name fun))))
+  (do-fundef (*one-arg-functions*)
+    (assert-grid-cl-equal-1 fun (grid-fun-name fun))))
 
 
 (define-test new-one-arg-funcs
@@ -172,23 +172,23 @@ are obtained from the `*one-arg-func-test-def*'"
    (grid-calc #'grid-log10 *+1-vector*)))
 
 (define-test predicate-funcs
-  (do-fundef (mv-gsll::*predicate-functions*)
+  (do-fundef (*predicate-functions*)
     (let ((argument (fun-arg fun *predicate-func-test-def*)))
       (assert-equalp
        (cl-calc  fun argument)
-       (grid-calc (mv-gsll::grid-fun-name fun) argument))
+       (grid-calc (grid-fun-name fun) argument))
        fun)))
 
 (define-test one-arg-with-second-optional&omitted
-  (do-fundef (mv-gsll::*one-arg-with-second-optional-functions*)
+  (do-fundef (*one-arg-with-second-optional-functions*)
     (let ((argument (fun-arg fun *funcs-with-second-arg-optional-test-def*)))
       (assert-numerical-equal
        (cl-calc  fun argument)
-       (grid-calc (mv-gsll::grid-fun-name fun)argument))
+       (grid-calc (grid-fun-name fun)argument))
       fun)))
   
 (define-test two-arg-functions
-  (do-fundef (mv-gsll::*two-arg-functions*)
+  (do-fundef (*two-arg-functions*)
     (let ((test-defs (cdr (assoc fun *two-arg-test-def*))))
       (dolist (test-def test-defs)
 	(destructuring-bind (type arg1 arg2) test-def

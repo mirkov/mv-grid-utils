@@ -1,4 +1,4 @@
-(in-package :mv-gsll)
+(in-package :mv-grid)
 
 (defun grid-fun-name (cl-fun-name &optional (suffix ""))
   "Intern a symbol of a function name operating on a grid.  The
@@ -23,14 +23,14 @@ double-float)
 	(documentation (format nil "Apply CL function ~a to grid" cl-function))
 	(func (if result-type
 		  (lambda (grid)
-		    (grid:map-grid :source grid
+		    (map-grid :source grid
 				   :element-function cl-function
 				   :destination-specification
-				   (list (append '(grid::foreign-array)
-						 (grid:dimensions grid))
+				   (list (append '(foreign-array)
+						 (dimensions grid))
 					 result-type)))
 		  (lambda (grid)
-		    (grid:map-grid :source grid
+		    (map-grid :source grid
 				   :element-function cl-function)))))
     (setf (symbol-function grid-fun-name) func
 	  (documentation grid-fun-name 'function) documentation)
@@ -46,11 +46,11 @@ but of type `t'"
 	(documentation (format nil "Apply CL function ~a to grid"
 			       cl-predicate-function))
 	(func (lambda (grid)
-		(grid:map-grid :source grid
+		(map-grid :source grid
 			       :element-function cl-predicate-function
 			       :destination-specification
-			       (list (append '(grid::array)
-					     (grid:dimensions grid))
+			       (list (append '(array)
+					     (dimensions grid))
 				     t)))))
     (setf (symbol-function grid-fun-name) func
 	  (documentation grid-fun-name 'function) documentation)
@@ -72,17 +72,17 @@ cases are handled:
 	(func-vs
 	 (if result-type
 	     (lambda (grid scalar)
-	       (grid:map-grid
+	       (map-grid
 		:source grid
 		:combination-function
 		#'(lambda (grid-element)
 		    (funcall cl-function grid-element scalar))
 		:destination-specification
-		(list (append '(grid::foreign-array)
-			      (grid:dimensions grid))
+		(list (append '(foreign-array)
+			      (dimensions grid))
 		      result-type)))
 	     (lambda (grid scalar)
-	       (grid:map-grid
+	       (map-grid
 		:source grid
 		:combination-function
 		#'(lambda (grid-element)
@@ -90,33 +90,33 @@ cases are handled:
 	(func-vv
 	 (if result-type
 	     (lambda (grid1 grid2)
-	       (grid:map-n-grids
+	       (map-n-grids
 		:sources (list (list grid1 nil)
 			       (list grid2 nil))
 		:combination-function cl-function
 		:destination-specification
-		(list (append '(grid::foreign-array)
-			      (grid:dimensions grid1))
+		(list (append '(foreign-array)
+			      (dimensions grid1))
 		      result-type)))
 	     (lambda (grid1 grid2)
-	       (grid:map-n-grids
+	       (map-n-grids
 		:sources (list (list grid1 nil)
 			       (list grid2 nil))
 		:combination-function cl-function))))
 	(func-sv
 	 (if result-type
 	     (lambda (scalar grid)
-	       (grid:map-grid
+	       (map-grid
 		:source grid
 		:combination-function
 		#'(lambda (grid-element)
 		    (funcall cl-function scalar grid-element))
 		:destination-specification
-		(list (append '(grid::foreign-array)
-			      (grid:dimensions grid))
+		(list (append '(foreign-array)
+			      (dimensions grid))
 		      result-type)))
 	     (lambda (scalar grid)
-	       (grid:map-grid
+	       (map-grid
 		:source grid
 		:combination-function
 		#'(lambda (grid-element)
@@ -135,12 +135,12 @@ cases are handled:
       function-def
     (let ((func (if default-2nd-arg
 		    (lambda (grid)
-		      (grid:map-grid :source grid
+		      (map-grid :source grid
 				     :element-function
 				     #'(lambda (arg)
 					 (funcall cl-function arg default-2nd-arg))))
 		    (lambda (grid)
-		      (grid:map-grid :source grid
+		      (map-grid :source grid
 				     :element-function cl-function)))))
       (setf (symbol-function grid-fun-name) func
 	    (documentation grid-fun-name 'function) documentation)

@@ -4,7 +4,7 @@
 ;;;; The declarations are used to generate the grid-mapping functions
 ;;;; and also the testing code.
 
-(in-package :mv-gsll)
+(in-package :mv-grid)
 
 (defparameter *one-arg-functions*
   '(sin cos tan asin acos atan
@@ -66,7 +66,7 @@ name and the expected argument type.
     `(let (fun result-type)
      (dolist (,fun-def ,fundefs)
        (if (consp ,fun-def)
-	   (setf fun (mv-gsll::cl-fun-name ,fun-def)
-		 result-type (mv-gsll::cl-fun-arg-type ,fun-def))
+	   (setf fun (cl-fun-name ,fun-def)
+		 result-type (cl-fun-arg-type ,fun-def))
 	   (setf fun ,fun-def))
 	 ,@body))))

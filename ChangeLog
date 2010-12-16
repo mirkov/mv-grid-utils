@@ -1,4 +1,39 @@
+2010-12-16  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* mv-grid/mv-grid.asd: Implementation of the refactored mv-grid
+	utilities package.
+
+	* mv-grid/grid-utilities.lisp: Changed package to mv-grid.
+	Cleanup of code as result of new package assignments
+
+	* mv-grid/grid-utilities-unit-tests.lisp: Change of internal
+	symbol references, because of change in package names and
+	dependencies (it was part of mv-gsll that used gsll, and now it is
+	part of mv-grid, which uses grid)
+
+	* mv-grid/grid-functions.lisp: Changed package to mv-grid.
+	Cleanup of code as result of new package assignments
+
+	* mv-grid/grid-functions-unit-tests.lisp: Changed package to
+	mv-grid.  Cleanup of code as result of new package assignments
+
+	* mv-grid/grid-function-instantiations.lisp: Changed package to
+	mv-grid.  Cleanup of code as result of new package assignments
+
+	* mv-grid/grid-function-generators.lisp: Changed package to
+	mv-grid.  Cleanup of code as result of new package assignments
+
+	* mv-grid/grid-function-declarations.lisp: Changed package to
+	mv-grid.  Cleanup of code as result of new package assignments
+
+	* mv-grid/mv-grid-package-def.lisp (:mv-grid): Refactored code
+	into mv-grid and mv-gsll packages.  Each lives in its own
+	directory.
+
 2010-12-08  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* mv-grid/grid-utilities.lisp (gmap): Removed destination
+	specification.  map-grid should rebuild it from the input grid.
 
 	* grid-function-declarations.lisp (*one-arg-functions*): Changed
 	signum's declaration to expect a complex-double-float.  This is
