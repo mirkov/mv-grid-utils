@@ -17,15 +17,26 @@
 	    :depends-on ("base")
 	    :components ((:file "grid-function-declarations")
 			 (:file "grid-function-generators")
+			 (:file "grid-function-generators-unit-tests"
+				:depends-on ("grid-function-generators"))
 			 (:file "grid-function-instantiations"
 				:depends-on ("grid-function-declarations"
 					     "grid-function-generators"))
 			 (:file "grid-functions-unit-tests"
 				:depends-on ("grid-function-instantiations"))))
-    :depends-on (:cl-utilities
-		 :grid
-		 :iterate
-		 :lisp-unit
-		 :my-utils
-		 :mv-gnuplot))
+   (:module "math-functions-devel"
+	    :pathname #P"./"
+	    :depends-on ("math-functions")
+	    :components ((:file "grid-function-generators-V2")
+			 (:file "grid-generic-functions&methods-examples"
+				:depends-on ("grid-function-generators-V2"))
+			 #|(:file "grid-mop-function-examples--ffa-type-based"
+				:depends-on ("grid-function-generators-V2"))|#)))
+  :depends-on (:cl-utilities
+	       :anaphora
+	       :grid
+	       :iterate
+	       :lisp-unit
+	       :my-utils
+	       :mv-gnuplot))
 

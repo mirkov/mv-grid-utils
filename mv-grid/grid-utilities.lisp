@@ -26,11 +26,25 @@
 (defparameter *integer-type* '(unsigned-byte 32)
   "Default integer byte length")
 
-(defun indgen (count &optional (len 16))
+
+(defun intgen (count &optional (len 32))
   "Return vector of length `count', type signed-byte of `len' bytes
 where the value of each element is its index.
 
 Allowed values of `len' are 8, 16, 32, 64"
+  (map-grid :source #'identity
+		 :source-dims `(,count)
+		 :destination-specification `((,*array-type* ,count)
+					      (signed-byte ,len))))
+
+
+(defun indgen (count &optional (len 16))
+  "Return vector of length `count', type signed-byte of `len' bytes
+where the value of each element is its index.
+
+Allowed values of `len' are 8, 16, 32, 64
+
+Question: should natural numbers be stored as unsigned integers?"
   (map-grid :source #'identity
 		 :source-dims `(,count)
 		 :destination-specification `((,*array-type* ,count) (unsigned-byte ,len))))
@@ -39,7 +53,9 @@ Allowed values of `len' are 8, 16, 32, 64"
 (defun natgen (count &optional (len 16))
   "Return vector of length `count' of natural numbers, starting at 1.
 
-Allowed values of `len' are 8, 16, 32, 64"
+Allowed values of `len' are 8, 16, 32, 64
+
+Question: should natural numbers be stored as unsigned integers?"
   (map-grid :source #'(lambda (arg)
 			     (1+ arg))
 		 :source-dims `(,count)

@@ -1,4 +1,27 @@
+2011-01-13  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* mv-grid/grid-function-declarations.lisp (*one-arg-functions*)
+	(*two-arg-functions*, *one&optional-second-arg-functions*):
+	Changed format of function entries: the declarations are not
+	grouped in a list anymore.  Now I use `rest' to access them all
+
+2010-12-17  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* mv-grid/grid-function-generators.lisp (*type-dictionary*): I
+	changed my approach of using !F,I,C.  Prior to this, I wanted to
+	use a symbol-macro to translate them.  However, the symbol macro
+	substitution not work if I used a quoted list.  Instead I am using
+	this a-list as a dictionary for both CL and grid types.
+
+	* mv-grid/grid-utilities.lisp (intgen): Added integer generator.
+	It generate grids of signed type.
+
 2010-12-16  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* mv-grid/grid-function-generators.lisp (*grid-fun-prefix*): Added
+	(grid-fun-name): Modified to use *grid-fun-prefix*
+	(add-grid-method): added
+	(make-gf): added
 
 	* mv-grid/mv-grid.asd: Implementation of the refactored mv-grid
 	utilities package.
