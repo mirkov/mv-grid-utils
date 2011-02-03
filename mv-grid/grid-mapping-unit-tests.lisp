@@ -1,7 +1,6 @@
 (in-package :mv-grid)
 
-;;; Define special variables that will be used in the tests.  These
-;;; include the grids and test definitions.
+;;; Special variables that will be used in the mapper tests.
 
 (defparameter *0+-vector* (findgen 5)
   "Vector of zero on positive double floats")
@@ -11,10 +10,92 @@
   "Vector of values between +/-1, exclusive")
 (defparameter *+1-vector* (lseq 1d0 6d0 5)
   "Vector of values above 1d0")
+(defparameter *+2-vector* (lseq 2d0 7d0 5)
+  "Vector of values above 1d0")
 (defparameter *complex-vector*
   #2m(#c(1d0 2d0) #c(5d0 -3d0)))
 (defparameter *natural-vector* (natgen 5)
   "Vector of natural numbers 1, 2, ...")
+
+
+;;; assert macros used in unit tests
+
+(defmacro assert-gmap-equal (map-fun cl-fun arg)
+  "Test correctness of a grid map function of one argument
+(grid vector).
+
+Apply the grid-mapping function `map-fun' to `arg' (a grid)
+
+Also map a corresponding `cl-fun' to `arg's contents"
+  `(assert-numerical-equal
+    (copy-to (,map-fun ,arg))
+    (map-grid>cl #',cl-fun ,arg)))
+
+(defmacro assert-gmap2-equal (grid-map-fun cl-fun
+			      arg1 arg2)
+  "Test correctness of a grid map function of two arguments.
+Arguments can be scalars or grid vectors
+
+Apply the grid-mapping function `map-fun' to `arg' (a grid)
+
+Also map a corresponding `cl-fun' to `arg's contents"
+  (labels ((value (arg) (if (symbolp arg)
+			    (symbol-value arg)
+			    arg))
+	   (vecp (arg)
+	     (if (equal (class-name (class-of (value arg)))
+			'vector-double-float)
+		 t nil)))
+    (let ((vec1p (vecp arg1))
+	  (vec2p (vecp arg2)))
+      (cond
+	((and vec1p (not vec2p))
+	 `(assert-numerical-equal
+	   (copy-to (,grid-map-fun ,arg1 ,arg2))
+	   (map-grid>cl #'(lambda (x)
+			    (,cl-fun x ,arg2))
+			,arg1)
+	   'arg1-vec))
+	((and (not vec1p) vec2p)
+	 `(assert-numerical-equal
+	   (copy-to (,grid-map-fun ,arg1 ,arg2))
+	   (map-grid>cl #'(lambda (x)
+			    (,cl-fun ,arg1 x))
+			,arg2)
+	   'arg2-vec))
+	((and vec1p vec2p)
+	 `(assert-numerical-equal
+	   (copy-to (,grid-map-fun ,arg1 ,arg2))
+	   (map-grid>cl #'(lambda (x y)
+			    (,cl-fun x y))
+			,arg1 ,arg2)
+	   'arg&base-vec))
+	(t (error "Neither argument was specified as vector"))))))
+
+
+
+;;; Functions that map over their arguments.  Both cl and grid
+;;; versions.  These functions are used to in the unit tests where the
+;;; mapping of cl function will be compared to grid's mappers.
+
+
+(defun cl-calc (fun arg)
+  "Map cl function `fun' on a grid `arg' and return a cl array"
+  (map 'vector fun (copy-to arg)))
+
+(defun map-grid>cl (fun arg &optional arg2)
+  "Map cl function `fun' on a grid `arg' and return a cl array"
+  (if arg2
+      (map 'vector fun (copy-to arg) (copy-to arg2))
+      (map 'vector fun (copy-to arg))))
+
+
+;;;; Rest of the file is commented out.  Not sure if it is necessary
+;;;; for rank-based method testing.
+
+#|
+
+
 
 (defparameter *one-arg-func-test-def*
   `((sin . ,*+-vector*) (cos . ,*+-vector*) (tan . ,*+-vector*)
@@ -74,13 +155,6 @@ the arguments used for testing that particular type.")
   "Retreive the argument to be used for testing `fun' from `a-list'"
   (cdr (assoc fun a-list)))
 
-;;; Functions that map over their arguments.  Both cl and grid
-;;; versions.  These functions are used to in the unit tests where the
-;;; mapping of cl function will be compared to grid's mappers.
-
-(defun cl-calc (fun arg)
-  "Map cl function `fun' on a grid `arg' and return a cl array"
-  (map 'vector fun (copy-to arg)))
 
 (defgeneric cl-calc-2 (fun arg1 arg2)
   (:documentation "Evaluate function of two arguments, looping over
@@ -133,27 +207,37 @@ are obtained from the `*one-arg-func-test-def*'"
       ',grid-fun )))
 
 
-(define-test one-arg-func-test--simple
+(define-test one-arg-func-test--single--cis
   ;; A simple test of one-argument functions using the sin function
-  (assert-grid-cl-equal-1 'sin 'grid-sin ))
+  (assert-grid-cl-equal-1 'cis 'grid-cis ))
+
+(defmacro assert-grid-cl-equal (cl-fun arg)
+  (let ((grid-fun (grid-fun-name cl-fun)))
+    `(assert-numerical-equal
+      (cl-calc #',cl-fun (copy-to ,arg))
+      (grid-calc #',grid-fun ,arg))))
+
+(define-test one-arg-func-test--multiple--sin
+  (assert-grid-cl-equal sin *+-vector* )
+  (assert-grid-cl-equal sin *natural-vector*)
+  (assert-grid-cl-equal sin *complex-vector*))
 
 
 
 
 
-#|
 
-;; this is a more explicit version of the next test
-(define-test one-arg-func-test--all
-  ;; test correctness of all one-argument functions
-  (do-fundef (*one-arg-functions*)
-    (let ((argument (fun-arg fun)))
-      (print fun)
-      (assert-numerical-equal
-       (cl-calc  fun argument)
-       (grid-calc (grid-fun-name fun) argument))
-       fun)))
-|#
+;;; this is a more explicit version of the next test
+;; (define-test one-arg-func-test--all
+;;   ;; test correctness of all one-argument functions
+;;   (do-fundef (*one-arg-functions*)
+;;     (let ((argument (fun-arg fun)))
+;;       (print fun)
+;;       (assert-numerical-equal
+;;        (cl-calc  fun argument)
+;;        (grid-calc (grid-fun-name fun) argument))
+;;        fun)))
+
 
 (define-test one-arg-func-test--all
   ;; test correctness of all one-argument functions
@@ -198,3 +282,5 @@ are obtained from the `*one-arg-func-test-def*'"
 	    (assert-numerical-equal (coerce res-cl 'list)
 				    (coerce res-grid 'list)
 				    fun)))))))
+
+|#

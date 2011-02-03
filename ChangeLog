@@ -1,3 +1,13 @@
+2011-02-03  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* mv-grid/mv-grid.asd (mv-grid): Renamed many files (but did not
+	keep notes of it)
+
+	* mv-grid/grid-function-declarations.lisp (fun/x/result-type):
+	Modified list/symbol method to parse declarations such as 1+
+	(*one-arg-functions*): Modified declarations such as 1+ by
+	explicitly adding allowed argument types
+
 2011-01-13  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
 
 	* mv-grid/grid-function-declarations.lisp (*one-arg-functions*)

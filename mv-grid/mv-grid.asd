@@ -4,34 +4,30 @@
   :version "0.1"
   :description "utilities built on top of grid"
   :components
-  ((:module "base"
+  ((:module "package-def"
 	    :pathname #P"./"
-	    :components ((:file "mv-grid-package-def")
-			 (:file "grid-utilities"
-				:depends-on ("mv-grid-package-def"))
+
+	    :components ((:file "mv-grid-package-def")))
+   (:module "utilities"
+	    :pathname #P"./"
+	    :depends-on ("package-def")
+	    :components ((:file "grid-utilities")
 			 (:file "grid-utilities-unit-tests"
-				:depends-on ("mv-grid-package-def"
-					     "grid-utilities"))))
-   (:module "math-functions"
+				:depends-on ("grid-utilities"))))
+   (:module "grid-mapping"
 	    :pathname #P"./"
-	    :depends-on ("base")
-	    :components ((:file "grid-function-declarations")
-			 (:file "grid-function-generators")
-			 (:file "grid-function-generators-unit-tests"
-				:depends-on ("grid-function-generators"))
-			 (:file "grid-function-instantiations"
-				:depends-on ("grid-function-declarations"
-					     "grid-function-generators"))
-			 (:file "grid-functions-unit-tests"
-				:depends-on ("grid-function-instantiations"))))
-   (:module "math-functions-devel"
-	    :pathname #P"./"
-	    :depends-on ("math-functions")
-	    :components ((:file "grid-function-generators-V2")
+	    :depends-on ("package-def")
+	    :components ((:file "grid-mapping-declarations")
+			 (:file "grid-mapping-unit-tests"
+				:depends-on ("grid-mapping-declarations"))
+			 (:file "grid-mapping-generators"
+				:depends-on ("grid-mapping-declarations"))
 			 (:file "grid-generic-functions&methods-examples"
-				:depends-on ("grid-function-generators-V2"))
-			 #|(:file "grid-mop-function-examples--ffa-type-based"
-				:depends-on ("grid-function-generators-V2"))|#)))
+				:depends-on ("grid-mapping-declarations"
+					     "grid-mapping-generators"))
+			 (:file "grid-default-mappings"
+				:depends-on ("grid-mapping-declarations"
+					     "grid-mapping-generators")))))
   :depends-on (:cl-utilities
 	       :anaphora
 	       :grid

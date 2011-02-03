@@ -3,9 +3,7 @@
 ;;;; access the declarations.
 ;;;;
 ;;;; The declarations are used to generate the grid-mapping functions
-;;;; and also the testing code.
-
-(in-package :mv-grid)
+;;;; They can also be used for testing these functions.
 
 (in-package :mv-grid)
 
@@ -28,12 +26,6 @@
 ;; The symbol macros are used to simplify the notation in the
 ;; definitions below
 
-#|
-(define-symbol-macro !C '(complex double-float))
-(define-symbol-macro !F 'double-float)
-(define-symbol-macro !I '(signed-byte 32))
-|#
-
 
 ;;; Mapping of CL functions on grids
 
@@ -47,39 +39,27 @@
 ;; the arguments must be a grid, while the other one can be a grid or
 ;; a scalar.
 ;;
-;; (There is a class of of arbitrary number of arguments.  These are
-;; discussed separately.)
-;;
-;;
 ;; We use methods with specializers to build mapping for functions of
 ;; two arguments
 ;;
-;; The function definitions are of following types:
+;; The function definitions syntax is as follows:
 ;;
-;; - cl-function-name (like 1+): Build mappers for floats, integers and
-;; complex and make result of the same type
-;;
-;; - (cl-function-name . (i/o decl)): Build mapper method(s) using i/o
-;; declarations
-;;
-;; The i/o-decl is used to declare the input and output types and is
-;; defined as follows:
-;;
-;; i/o-decl -> symbol | i/o-decl (one or more)
-;; symbol -> !I | !F | !C
-;; i/o-decl -> (symbol) |
-;;             (symbol symbol)
+;; - (cl-function-name i/o-decl i/o-decl ... )
+;; - i/o-decl -> symbol | (symbol symbol) | ((symbol symbol) symbol)
+;; - symbol -> !I | !F | !C
 ;; 
+;; Syntax examples:
 ;;
-;; For two argument functions, the i/o-decl is similar, except 
-;; i/o-decl -> (symbol) |
-;;                  ((symbol symbol) symbol) | ...
-;;
-;; Some cl functions (sqrt, log, asin, acos) can return a complex
-;; number for a floating or integer argument (negative for sqrt, log,
-;; |arg|>1 for asin, acos).  For these, I define corresponding
-;; convenience functions that always return complexes, irrespective or
-;; the argument type.  See the appropriate file section.
+;; - (1+ !F !C !I) : The single argument function `1+' accepts floats,
+;;                   complexes and integers, and returns the same type
+;; - (realpart     : Single argument function `realpart'
+;;      (!F  !F)     for a float returns a float and for a complex returns
+;;      (!C  !F))    a float
+;; - (expt     	     Two argument function `expt' accepts four combinations
+;;     ((!F !F) !F)  of floats and complexes, and returns floats only if 	;;     ((!C !C) !C)  both arguments are floats.  Otherwise it returns   	;;     ((!F !C) !C)  a complex	       	       	       	       	       	     
+;;     ((!C !F) !C))
+
+
 
 
 
@@ -119,7 +99,7 @@
     (atanh  ;;(!I  !F)
 	    (!F  !F)
 	    (!C  !C))
-    (1+) (1-)
+    (1+ !F !C !I) (1- !F !I !C)
     (abs (!F  !F)
 	  (!C  !F))
     (exp (!F  !F)
@@ -138,9 +118,7 @@
 	       (!F  !F))
     (signum (!C  !F)
 	     (!F  !F)))
-  "Functions of one argument which may be of float or complex type.
-The results are assumed of type of argument unless specified
-otherwise")
+  "Type declarations for functions of one argument")
 
 
 
@@ -152,8 +130,7 @@ otherwise")
      ((!C !F) !C))
     (mod  ((!F !F) !F))
     (rem  ((!F !F) !F)))
-  "Functions of two arguments, where the second argument is optional.
-The list specifies the argument types and result type.")
+  "Type declarations for functions of two arguments")
 
 
 
@@ -208,14 +185,14 @@ The list specifies the argument types and result type.")
 	       (!F !F :return !F)))|#)
 
   
-  "Functions of two arguments, where the second argument is optional.
-The list specifies the argument types and result type.")
+  "Type declarations for functions of one required and one optional
+  argument")
 
 
 ;;; The rest of the file consists of declarations that are not
 ;;; currently implemented.  They will be removed from the comment
 ;;; block as they are implemented.  The syntax has not been fixed.
-
+#|
 
 (defparameter *comparisons*
   '(= /=
@@ -248,7 +225,6 @@ Unless specified, the functions operate on integers, floats, or complexes.")
 	  (!C :result !C))))
   "Operations of one or more arguments of one type, that produces a
   result of the same type (unless over-ridden)")
-
 
 
 ;;; Definitions of reduce-like functions
@@ -328,15 +304,20 @@ and floats."
   "One-argument functions that do not exist in cl.  These are
   specialization or generalizations of cl's functions.")
 
+
+|#
+
 ;;; Code used to extract function names and argument types.  This code
 ;;; should be used instead of raw access.  So if I ever change the
 ;;; format of the variables, I will only have to change this code.
-(defun cl-fun-name (arg)
-  (car arg))
-(defun cl-fun-arg-type (arg)
-  (cadr arg))
 
-(defmacro do-fundef ((fundefs) &body body)
+(eval-when (:compile-toplevel :execute :load-toplevel)
+  (defun decl>cl-fun (arg)
+    (car arg))
+  (defun decl>i/o-decls (arg)
+    (rest arg)))
+
+(defmacro do-fundef ((fun i/o-decl fundefs) &body body)
   "Loop over function definitions, and bind cl function name to
 `fun' and result type to `result-type'
 
@@ -347,11 +328,9 @@ name and the expected argument type.
   (let ((fun-def (gensym "FUN-DEF")))
     `(let (fun result-type)
      (dolist (,fun-def ,fundefs)
-       (if (consp ,fun-def)
-	   (setf fun (cl-fun-name ,fun-def)
-		 result-type (cl-fun-arg-type ,fun-def))
-	   (setf fun ,fun-def))
-	 ,@body))))
+       (setf ,fun (decl>cl-fun ,fun-def)
+	     ,i/o-decl (decl>i/o/decls ,fun-def))
+       ,@body))))
 
 ;;; Utility functions
 
@@ -370,7 +349,20 @@ Signal error if function not found"
   dictionary)")
   (:method ((decl list) (arg symbol) &optional dictionary)
     (declare (ignore dictionary))
-    (second (find arg decl :key #'car)))
+    ;; Fine the matching i/o declaration in the dictionary
+    (let ((matching-declaration
+	   (find arg decl :test
+		 #'(lambda (arg item)
+		     (equal arg (if (consp item)
+				    (car item)
+				    item))))))
+      (or matching-declaration
+	  (error "Argument type ~a not found in declaration ~a"
+		 arg decl))
+      ;; extract result type
+      (if (consp matching-declaration)
+	  (second matching-declaration)
+	  matching-declaration)))
   (:method ((fun symbol) (arg symbol)
 	    &optional (dictionary *one-arg-functions*))
     (fun/x/-result-type (fun-decl fun dictionary) arg
@@ -378,12 +370,14 @@ Signal error if function not found"
 
 
 
-(define-test fun/x/result-type1
+(define-test fun/x/result-type
+  (assert-equal '!F (fun/x/-result-type '(!F !C !I) '!F))
+  (assert-equal '!C (fun/x/-result-type '1+ '!C))
   (assert-equal
-   '!F (fun/x/-result-type '((!F  !F) (!C  !C))
+   '!F (fun/x/-result-type '((!F !F) (!C !C))
 			   '!F))
   (assert-equal
-   '!C (fun/x/-result-type '((!F  !F) (!C  !C))
+   '!C (fun/x/-result-type '((!F !F) (!C !C))
 			   '!C))
   (assert-equal '!F (fun/x/-result-type 'sin '!F))
   (assert-equal '!F (fun/x/-result-type 'log '!F
@@ -391,8 +385,8 @@ Signal error if function not found"
 
 (defgeneric fun/xy/-result-type (fun arg1 arg2 &optional dictionary)
   (:documentation "Return `fun'ction's result type for `arg1' and
-  `arg2' using `dictionary' if necessary (some methods may not require
-  the dictionary)")
+ `arg2' using `dictionary' if necessary (some methods may not require
+ the dictionary)")
   (:method ((decl list) (arg1 symbol) (arg2 symbol) &optional dictionary)
     (declare (ignore dictionary))
     (second (find (list arg1 arg2) decl :key #'car :test #'equal)))
@@ -402,12 +396,12 @@ Signal error if function not found"
 
 
 
-(define-test fun/xy/result-type1
+(define-test fun/xy/result-type
   (assert-equal
-   '!F (fun/xy/-result-type '(((!F  !F) !F)
-			      ((!C  !C) !C))
-			   '!F '!F))
+   '!F (fun/xy/-result-type '(((!F !F) !F)
+			      ((!C !C) !C))
+			    '!F '!F))
   (assert-equal '!F (fun/xy/-result-type 'log '!F '!F
-					*one&optional-second-arg-functions*)))
+					 *one&optional-second-arg-functions*)))
 
-  
+ 
