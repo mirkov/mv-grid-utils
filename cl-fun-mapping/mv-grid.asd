@@ -11,7 +11,7 @@
 			 (:file "grid-utilities-setup"
 				:depends-on ("mv-grid-package-def"))))
    (:module "grid-operations"
-	    :pathname #P"./"
+	   ;; :pathname #P"./"
 	    :depends-on ("package-def")
 	    :components ((:file "make-grid-sequence")
 			 (:file "grid-iterating-functions")
@@ -19,8 +19,8 @@
 			 (:file "grid-mappers")
 			 (:file "grid-io")
 			 (:file "grid-curry")))
-   (:module "grid-mapping"
-	    :pathname #P"./"
+   (:module "cl-fun-mapping"
+	   ;; :pathname #P"./"
 	    :depends-on ("package-def")
 	    :components ((:file "grid-mapping-declarations")
 			 (:file "grid-mapping-unit-tests"
