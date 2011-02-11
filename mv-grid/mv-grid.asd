@@ -7,13 +7,18 @@
   ((:module "package-def"
 	    :pathname #P"./"
 
-	    :components ((:file "mv-grid-package-def")))
-   (:module "utilities"
+	    :components ((:file "mv-grid-package-def")
+			 (:file "grid-utilities-setup"
+				:depends-on ("mv-grid-package-def"))))
+   (:module "grid-operations"
 	    :pathname #P"./"
 	    :depends-on ("package-def")
-	    :components ((:file "grid-utilities")
-			 (:file "grid-utilities-unit-tests"
-				:depends-on ("grid-utilities"))))
+	    :components ((:file "make-grid-sequence")
+			 (:file "grid-iterating-functions")
+			 (:file "grid-manipulations")
+			 (:file "grid-mappers")
+			 (:file "grid-io")
+			 (:file "grid-curry")))
    (:module "grid-mapping"
 	    :pathname #P"./"
 	    :depends-on ("package-def")
@@ -34,5 +39,6 @@
 	       :iterate
 	       :lisp-unit
 	       :my-utils
-	       :mv-gnuplot))
+	       :mv-gnuplot
+	       :csv-parser))
 

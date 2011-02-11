@@ -113,7 +113,8 @@ Default data type is t
 			     (setf record next-record))
 			 (when (null record)
 			      (if eof-error-p
-				  (error 'SYSTEM::SIMPLE-END-OF-FILE)
+				  (error #+clisp 'SYSTEM::SIMPLE-END-OF-FILE
+					 "End of file")
 				  (return-from read-grid eof-value)))
 			 (pop record))
 	     :source-dims `(,rows ,cols)
