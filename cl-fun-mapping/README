@@ -1,0 +1,15 @@
+This directory still needs major cleanup as it is a result a merge of
+several development paths.
+
+The file grid-generic-functions&methods-examples.lisp is the
+documentation for this topic.
+
+In particular the definition of functions sin% and log% and their
+tests show this module's goals.
+
+The rest of that file shows by example how this functionality was
+implemented.
+
+
+Many files in this module have remnants of other development branches,
+and still need to be cleaned up.

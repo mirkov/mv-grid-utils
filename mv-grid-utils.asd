@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-10 06:41:07 mv-gpl-header.txt>
+;; Time-stamp: <2011-02-12 09:22:42 mv-grid-utils.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -41,17 +41,17 @@
    (:module "cl-fun-mapping"
 	   ;; :pathname #P"./"
 	    :depends-on ("package-def")
-	    :components ((:file "grid-mapping-declarations")
-			 (:file "grid-mapping-unit-tests"
-				:depends-on ("grid-mapping-declarations"))
-			 (:file "grid-mapping-generators"
-				:depends-on ("grid-mapping-declarations"))
-			 (:file "grid-generic-functions&methods-examples"
-				:depends-on ("grid-mapping-declarations"
-					     "grid-mapping-generators"))
-			 (:file "grid-default-mappings"
-				:depends-on ("grid-mapping-declarations"
-					     "grid-mapping-generators")))))
+	    :components ((:file "clfm-declarations")
+			 #|(:file "grid-mapping-unit-tests"
+				:depends-on ("clfm-declarations"))|#
+			 (:file "clfm-generation-utilities"
+				:depends-on ("clfm-declarations"))
+			 (:file "clfm-by-example"
+				:depends-on ("clfm-declarations"
+					     "clfm-generation-utilities"))
+			 (:file "make-all-clfm"
+				:depends-on ("clfm-declarations"
+					     "clfm-generation-utilities")))))
   :depends-on (:cl-utilities
 	       :anaphora
 	       :grid
