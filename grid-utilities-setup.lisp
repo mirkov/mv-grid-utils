@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-10 07:18:35 grid-utilities-setup.lisp>
+;; Time-stamp: <2011-02-12 08:29:01 grid-utilities-setup.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -53,6 +53,22 @@
 
 
 
+
+(defparameter *array-3-4-double-float*
+  (grid::test-grid-double-float *array-type* '(3 4)))
+
+
+
+(defparameter *array-3-4-double-float*
+  (grid::test-grid-double-float *array-type* '(3 4)))
+
+(defparameter *vector-4-double-float*
+  (grid::test-grid-double-float *array-type* '(4)))
+
+(defparameter *0-1-2* (grid::make-grid `((,*array-type*) ,*integer-type*)
+			     :initial-contents '(0 1 2)))
+(defparameter *0-2-4* (grid::make-grid `((,*array-type*) ,*integer-type*)
+				      :initial-contents '(0 2 4)))
 
 
 

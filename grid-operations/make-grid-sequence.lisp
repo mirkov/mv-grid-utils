@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-10 07:18:52 make-grid-sequence.lisp>
+;; Time-stamp: <2011-02-12 08:26:12 make-grid-sequence.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -22,6 +22,19 @@
 
 (export '(intgen indgen natgen findgen cindgen))
 
+(defparameter *array-3-4-double-float*
+  (grid::test-grid-double-float *array-type* '(3 4)))
+
+(defparameter *vector-4-double-float*
+  (grid::test-grid-double-float *array-type* '(4)))
+
+(defparameter *0-1-2* (grid::make-grid `((,*array-type*) ,*integer-type*)
+			     :initial-contents '(0 1 2)))
+(defparameter *0-2-4* (grid::make-grid `((,*array-type*) ,*integer-type*)
+				      :initial-contents '(0 2 4)))
+
+
+
 (defun intgen (count &optional (len 32))
   "Return vector of length `count', type signed-byte of `len' bytes
 where the value of each element is its index.
@@ -31,6 +44,15 @@ Allowed values of `len' are 8, 16, 32, 64"
 		 :source-dims `(,count)
 		 :destination-specification `((,*array-type* ,count)
 					      (signed-byte ,len))))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (setf mv-grid:*array-type* *array-type*))
+
+(define-test indgen
+  (assert-grid-equal (grid::make-grid `((,*array-type*) ,*integer-type*)
+				      :initial-contents '(0 1 2))
+		     (indgen 3)))
+
 
 
 (defun indgen (count &optional (len 16))
@@ -51,6 +73,14 @@ Allowed values of `len' are 8, 16, 32, 64"
 			     (1+ arg))
 		 :source-dims `(,count)
 		 :destination-specification `((,*array-type* ,count) (unsigned-byte ,len))))
+
+
+(define-test findgen
+  (assert-grid-equal
+   (grid::make-grid `((,*array-type*) ,*float-type*)
+		    :initial-contents '(0d0 1d0 2d0))
+		     (findgen 3)))
+
 
 
 (defun findgen (count &optional (type 'double-float))

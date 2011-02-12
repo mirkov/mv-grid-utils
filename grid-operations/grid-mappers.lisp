@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-10 07:15:31 grid-mappers.lisp>
+;; Time-stamp: <2011-02-12 08:28:24 grid-mappers.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -39,6 +39,14 @@ mapc")
 					      t))
     vector))
 
+(define-test gmap
+    (assert-grid-equal
+     *0-1-2* (gmap #'identity *0-1-2*))
+    (assert-grid-equal
+     *0-2-4*
+     (gsmap #'+ *0-1-2* *0-1-2*)))
+
+
 (defun gmap (function grid)
   "Element-wise Map `function' over `grids' *array-type* and
 *float-type* determine the result type
@@ -71,6 +79,17 @@ the :combination-function keyword"
 						 ,*float-type*))))
 
 
+
+
+(define-test reduce-rows/cols
+  (assert-grid-equal 
+   (grid::make-grid `((,*array-type*) ,*float-type*)
+		    :initial-contents '(30d0 33d0 36d0 39d0))
+   (reduce-columns *array-3-4-double-float*))
+  (assert-grid-equal 
+   (grid::make-grid `((,*array-type*) ,*float-type*)
+		    :initial-contents '((6d0 46d0 86d0)))
+   (reduce-rows *array-3-4-double-float*)))
 
 
 (defun reduce-rows (matrix &optional (func #'+))

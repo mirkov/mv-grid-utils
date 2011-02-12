@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-10 07:11:01 grid-io.lisp>
+;; Time-stamp: <2011-02-12 08:27:28 grid-io.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -45,6 +45,19 @@ Arguments and Values:
 
 "))
 
+
+(define-test read-grid
+  (with-open-file (stream
+		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.txt"
+		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.txt"
+		   :direction :input) 
+    (assert-grid-equal 
+     (grid::make-grid `((,*array-type*) ,*float-type*)
+		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
+     (read-grid '(2 3) 't stream)))
+
+
+
 (defmethod read-grid (dimensions (file-format (eql 't))
 		      (stream file-stream)
 		      &optional (eof-error-p t) eof-value
@@ -65,6 +78,40 @@ Default type is 'double-float"
 		 :source-dims dimensions
 		 :destination-specification `((,*array-type* ,@dimensions)
 					      ,type)))
+
+(define-test read-csv-grid
+  (with-open-file (stream
+		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.txt"
+		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.csv"
+		   :direction :input) 
+    (assert-grid-equal 
+     (grid::make-grid `((,*array-type*) ,*float-type*)
+		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
+     (read-grid '(2 3) 'csv stream)))
+  (with-open-file (stream
+		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.txt"
+		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.csv"
+		   :direction :input) 
+    (assert-grid-equal 
+     (grid::make-grid `((,*array-type*) ,*float-type*)
+		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
+     (read-grid '(nil 3) 'csv stream)))
+  (with-open-file (stream
+		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.txt"
+		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.csv"
+		   :direction :input) 
+    (assert-grid-equal 
+     (grid::make-grid `((,*array-type*) ,*float-type*)
+		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
+     (read-grid '(2 nil) 'csv stream)))
+  (with-open-file (stream
+		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.txt"
+		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-gsll/mv-grid/2d-grid-data.csv"
+		   :direction :input) 
+    (assert-grid-equal 
+     (grid::make-grid `((,*array-type*) ,*float-type*)
+		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
+     (read-grid '(nil nil) 'csv stream))))
 
 (defmethod read-grid (dimensions (file-format (eql 'csv))
 		      stream
