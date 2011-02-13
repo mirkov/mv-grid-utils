@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 21:32:02 clfm-unit-tests.lisp>
+;; Time-stamp: <2011-02-12 21:40:05 clfm-unit-tests.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -39,6 +39,10 @@
 
 
 ;;; assert macros used in unit tests
+
+(defmacro assert-grid-equal (grid1 grid2)
+  `(assert-numerical-equal (grid:copy-to ,grid1)
+                           (grid:copy-to ,grid2)))
 
 (defmacro assert-gmap-equal (map-fun cl-fun arg)
   "Test correctness of a grid map function of one argument

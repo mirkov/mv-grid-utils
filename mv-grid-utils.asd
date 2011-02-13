@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 17:16:59 mv-grid-utils.asd>
+;; Time-stamp: <2011-02-12 22:24:33 mv-grid-utils.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -42,8 +42,8 @@
 	   ;; :pathname #P"./"
 	    :depends-on ("package-def")
 	    :components ((:file "clfm-declarations")
-			 #|(:file "grid-mapping-unit-tests"
-				:depends-on ("clfm-declarations"))|#
+			 (:file "clfm-unit-tests"
+				:depends-on ("clfm-declarations"))
 			 (:file "clfm-generation-utilities"
 				:depends-on ("clfm-declarations"))
 			 (:file "clfm-by-example"
@@ -58,8 +58,6 @@
 	       :grid
 	       :iterate
 	       :lisp-unit
-	       :my-utils
-	       #|:mv-gnuplot|#
 	       :csv-parser))
 
 ;;;; Local variables: 

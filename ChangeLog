@@ -1,5 +1,11 @@
 2011-02-12    <977315@WTEHDZYYN71>
 
+	* mv-grid-utils.asd (mv-grid-utils): Removed my-utils and
+	mv-gnuplot prerequisites.  They were not needed.
+
+	* cl-fun-mapping/clfm-by-example.lisp (sin%%%%%): Tuned
+	destination specification to ffa for sbcl and cl for clisp
+
 	* cl-fun-mapping/clfm-unit-tests.lisp (assert-gmap2-equal):
 	Modified vecp to test for vector or mvector
 

@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 17:21:18 clfm-by-example.lisp>
+;; Time-stamp: <2011-02-12 21:43:12 clfm-by-example.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -68,16 +68,20 @@
     "apply `sin' to grid of double floats and return double-float"
     (map-grid :source arg
 	      :element-function #'sin
-	      :destination-specification (list (append '(foreign-array)
-						     (dimensions arg))
+	      :destination-specification (list (append
+						#+sbcl '(foreign-array)
+						#+clisp '(array)
+						(dimensions arg))
 					       'double-float)))
   (:method ((arg #-clisp vector-complex-double-float #+clisp vector))
     "apply `sin' to grid of complex double-floats and return grid of
 complex double-floats"
     (map-grid :source arg
 	      :element-function #'sin
-	      :destination-specification (list (append '(foreign-array)
-						     (dimensions arg))
+	      :destination-specification (list (append
+						#+sbcl '(foreign-array)
+						#+clisp '(array)
+						(dimensions arg))
 					       '(complex double-float)))))
 
 (define-test sin%%%%%
