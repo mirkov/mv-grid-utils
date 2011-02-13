@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-10 06:41:07 mv-gpl-header.txt>
+;; Time-stamp: <2011-02-12 21:32:59 clfm-generation-utilities.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (in-package :mv-grid)
-
 (defparameter *type-dictionary*
   '((!C .
      #+sbcl(complex-double-float (complex double-float) complex)
@@ -76,19 +75,25 @@ is `t' return the FFA grid type.  If `parent' is `t' return the parent
 
 (define-test typedef
   (assert-equal
-   'vector-complex-double-float (typedef '!C :vector t))
+   #+sbcl 'vector-complex-double-float
+   #+clisp 'vector-complex
+   (typedef '!C :vector t))
   (assert-equal 'complex (typedef '!C :parent t))
-  (assert-equal '(complex double-float) (typedef '!C)))
+  (assert-equal #+sbcl '(complex double-float)
+		#+clisp 'complex (typedef '!C)))
 
 (defun type-mnemonic (argument)
   "Return the mnemonic that describes the type of data
   in this argument"
   (typecase argument
-    (vector-double-float '!F)
-    (vector-complex-double-float '!C)
-    (double-float '!F)
+    #+sbcl (vector-double-float '!F)
+    #+clisp (vector '!F)
+    #+sbcl (vector-complex-double-float '!C)
+    #+sbcl (double-float '!F)
+    #+clisp (float '!F)
     (complex '!C)
     (t (error "Argument type ~a is not supported" (type-of argument)))))
+
 
 (defgeneric one-arg-gmap-ds (function arg &optional dictionary)
   (:documentation "Return the list that is keyword argument to
@@ -99,7 +104,7 @@ grid-map's destination-specification.
 `dictionary' points to a dictionary where necessary information may be found
 ")
 
-  (:method ((function symbol) (arg mvector)
+  (:method ((function symbol) (arg #+ffa mvector #-ffa vector)
 	    &optional (dictionary *one-arg-functions*))
 
     "Use the `function' symbol (such as `sin') and the argument type (such as '!F) to build the keyword argument :destination-specification"
@@ -111,18 +116,34 @@ grid-map's destination-specification.
 	    (typedef result-type)
 	    #+clisp t))))
 
+#-clisp
+;; (define-test one-arg-gmap-ds
+;;   (assert-equal '((foreign-array 3) double-float)
+;; 		(one-arg-gmap-ds 'sin
+;; 				  #m(1d0 2d0 3d0)))
+;;   (assert-equal '((foreign-array 2) (complex double-float))
+;; 		  (one-arg-gmap-ds 'log
+;; 				   #2m(#C(1d0 2d0) #C(3d0 4d0))
+;; 				   *one&optional-second-arg-functions*)))
+
+
+
+#+clisp
 (define-test one-arg-gmap-ds
-  (assert-equal '((foreign-array 3) double-float)
-		(one-arg-gmap-ds 'sin #m(1d0 2d0 3d0)))
-  (assert-equal '((foreign-array 2) (complex double-float))
-		  (one-arg-gmap-ds 'log #2m(#C(1d0 2d0) #C(3d0 4d0))
-		   *one&optional-second-arg-functions*)))
+  (assert-equal '((array 3) double-float)
+		(one-arg-gmap-ds 'sin
+				  #(1d0 2d0 3d0)))
+  (assert-equal '((array 2) (complex double-float))
+		  (one-arg-gmap-ds 'log
+				   #2(#C(1d0 2d0) #C(3d0 4d0))
+				   *one&optional-second-arg-functions*)))
+
 
 (defgeneric two-arg-gmap-ds (function arg1 arg2 &optional dictionary)
   (:documentation "Return list that is keyword argument to a grid map
   function (either map-grid or map-n-grids) for a cl function of two
   arguments")
-  (:method ((function symbol) (arg1 mvector) arg2 &optional
+  (:method ((function symbol) (arg1 #-clisp mvector #+clisp vector) arg2 &optional
 	    (dictionary *two-arg-functions*))
     (let* ((arg1-type (type-mnemonic arg1))
 	   (arg2-type (type-mnemonic arg2))
@@ -133,7 +154,7 @@ grid-map's destination-specification.
 	    #+sbcl
 	    (typedef result-type)
 	    #+clisp t)))
-  (:method ((function symbol) arg1 (arg2 mvector) &optional
+  (:method ((function symbol) arg1 (arg2 #-clisp mvector #+clisp vector) &optional
 	    (dictionary *two-arg-functions*))
     (let* ((arg1-type (type-mnemonic arg1))
 	   (arg2-type (type-mnemonic arg2))
@@ -144,7 +165,7 @@ grid-map's destination-specification.
 	    #+sbcl
 	    (typedef result-type)
 	    #+clisp t)))
-  (:method ((function symbol) (arg1 mvector) (arg2 mvector) &optional
+  (:method ((function symbol) (arg1 #-clisp mvector #+clisp vector) (arg2 #-clisp mvector #+clisp vector) &optional
 	    (dictionary *two-arg-functions*))
     (let* ((arg1-type (type-mnemonic arg1))
 	   (arg2-type (type-mnemonic arg2))
@@ -156,17 +177,35 @@ grid-map's destination-specification.
 	    (typedef result-type)
 	    #+clisp t))))
 
+#-clisp
+;; (define-test two-arg-gmap-ds
+;;   (assert-equal '((foreign-array 3) double-float)
+;; 		(two-arg-gmap-ds 'expt
+;; 				 #m(1d0 2d0 3d0) 2d0))
+;;   (assert-equal '((foreign-array 3) double-float)
+;; 		(two-arg-gmap-ds 'expt 2d0 #m(1d0 2d0 3d0)))
+;;   (assert-equal '((foreign-array 3) (complex double-float))
+;; 		(two-arg-gmap-ds 'expt
+;; 				  #2m(#C(1d0 1d0) #C(1d0 1d0) #C(1d0 1d0))
+;; 				  #m(1d0 2d0 3d0)))
+;;   (assert-equal '((foreign-array 2) (complex double-float))
+;; 		  (two-arg-gmap-ds 'log  #2m(#C(1d0 2d0) #C(3d0 4d0)) 
+;; 				   3d0
+;; 		   *one&optional-second-arg-functions*)))
+
+#+clisp
 (define-test two-arg-gmap-ds
-  (assert-equal '((foreign-array 3) double-float)
-		(two-arg-gmap-ds 'expt #m(1d0 2d0 3d0) 2d0))
-  (assert-equal '((foreign-array 3) double-float)
-		(two-arg-gmap-ds 'expt 2d0 #m(1d0 2d0 3d0)))
-  (assert-equal '((foreign-array 3) (complex double-float))
+  (assert-equal '((array 3) #+sbcl double-float #+clisp float)
 		(two-arg-gmap-ds 'expt
-				 #2m(#C(1d0 1d0) #C(1d0 1d0) #C(1d0 1d0))
-				 #m(1d0 2d0 3d0)))
-  (assert-equal '((foreign-array 2) (complex double-float))
-		  (two-arg-gmap-ds 'log #2m(#C(1d0 2d0) #C(3d0 4d0))
+				 #(1d0 2d0 3d0) 2d0))
+  (assert-equal '((array 3) double-float)
+		(two-arg-gmap-ds 'expt 2d0 #(1d0 2d0 3d0)))
+  (assert-equal '((array 3) (complex double-float))
+		(two-arg-gmap-ds 'expt
+				  #(#C(1d0 1d0) #C(1d0 1d0) #C(1d0 1d0))
+				  #(1d0 2d0 3d0)))
+  (assert-equal '((array 2) (complex double-float))
+		  (two-arg-gmap-ds 'log  #(#C(1d0 2d0) #C(3d0 4d0)) 
 				   3d0
 		   *one&optional-second-arg-functions*)))
 
@@ -262,7 +301,7 @@ If `dictionary' is specified, it is included in the call to
      (:method (,arg)
        "Fallback, unspecialized method"
        (,fun ,arg))
-     (:method ((,arg mvector))
+     (:method ((,arg #-clisp mvector #+clisp vector))
        ,(format nil "map `~(~a~)' over a vector grid" fun)
        (one-arg-map-call ,fun ,arg ,@(if dictionary `(,dictionary))))))
 
@@ -272,7 +311,7 @@ If `dictionary' is specified, it is included in the call to
      (:documentation "log function that accepts scalars and vectors")
      (:method (arg) "Fallback, unspecialized method"
        (log arg))
-     (:method ((arg mvector))
+     (:method ((arg #-clisp mvector #+clisp vector))
        "map `log' over a vector grid"
        (one-arg-map-call log arg *one&optional-second-arg-functions*)))
    (def-one-arg-gmap-fun log%-one-arg log arg
@@ -287,18 +326,18 @@ If `dictionary' is specified, it is included in the call to
        ,(format nil "(~(~a~) ~(~a~) ~(~a~)) where ~(~a~) and ~(~a~) are unspecialized"
 		fun arg1 arg2 arg1 arg2)
        (,fun ,arg1 ,arg2))
-     (:method ((,arg1 mvector) (,arg2 double-float))
+     (:method ((,arg1 #-clisp mvector #+clisp vector) (,arg2 #+sbcl double-float #+clisp float))
        ,(format nil
 		"(~(~a~) ~(~a~) ~(~a~)) where ~(~a~) is a vector and ~(~a~) a scalar"
 		fun arg1 arg2 arg1 arg2)
        (two-arg-map-call ,fun (,arg1 t) (,arg2)
 			 ,@(if dictionary `(,dictionary))))
-     (:method ((,arg1 mvector) (,arg2 mvector))
+     (:method ((,arg1 #-clisp mvector #+clisp vector) (,arg2 #-clisp mvector #+clisp vector))
        ,(format nil "(~(~a~) ~(~a~) ~(~a~)) where ~(~a~) and ~(~a~) are vectors"
 		fun arg1 arg2  arg1 arg2)
        (two-arg-map-call ,fun (,arg1 t) (,arg2 t)
 			 ,@(if dictionary `(,dictionary))))
-     (:method ((,arg1 double-float) (,arg2 mvector))
+     (:method ((,arg1 #+sbcl double-float #+clisp float) (,arg2 #-clisp mvector #+clisp vector))
        ,(format nil "(~(~a~) ~(~a~) ~(~a~)) where ~(~a~) is scalar and ~(~a~) is a vector"
 		fun arg1 arg2  arg1 arg2)
        (two-arg-map-call ,fun (,arg1) (,arg2 t)
@@ -311,13 +350,13 @@ If `dictionary' is specified, it is included in the call to
     (:method (arg base)
       "(log arg base) where arg and base are unspecialized"
       (log arg base))
-    (:method ((arg mvector) (base double-float))
+    (:method ((arg #-clisp mvector #+clisp vector) (base #+sbcl double-float #+clisp float))
       "(log arg base) where arg is a vector and base a scalar"
       (two-arg-map-call log (arg t) (base) *one&optional-second-arg-functions*))
-    (:method ((arg mvector) (base mvector))
+    (:method ((arg #-clisp mvector #+clisp vector) (base #-clisp mvector #+clisp vector))
       "(log arg base) where arg and base are vectors"
       (two-arg-map-call log (arg t) (base t) *one&optional-second-arg-functions*))
-    (:method ((arg double-float) (base mvector))
+    (:method ((arg #+sbcl double-float #+clisp float) (base #-clisp mvector #+clisp vector))
       "(log arg base) where arg is scalar and base is a vector"
       (two-arg-map-call log (arg) (base t) *one&optional-second-arg-functions*)))
    (def-two-arg-gmap-fun log%-two-arg log arg base
@@ -361,3 +400,9 @@ argument log% function"
    (def-one-req-one-opt-args-gmap-fun
        log% log arg base *one&optional-second-arg-functions*)))
 
+#|
+
+|#
+;;;; Local variables: 
+;;;; change-log-default-name: "~/my-software-add-ons/my-lisp/mv-grid-utils/ChangeLog"
+;;;; End:

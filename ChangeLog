@@ -1,3 +1,20 @@
+2011-02-12    <977315@WTEHDZYYN71>
+
+	* cl-fun-mapping/clfm-unit-tests.lisp (assert-gmap2-equal):
+	Modified vecp to test for vector or mvector
+
+	* cl-fun-mapping/clfm-generation-utilities.lisp,
+	* cl-fun-mapping/clfm-by-example.lisp: Adding non-ffa and non-sbcl
+	declarations: double-float -> float, for example
+
+
+	* cl-fun-mapping/clfm-generation-utilities.lisp: unit tests could
+	not compile on clisp because I was using #m reader macro.  I
+	duplicated the tests for clisp and used the #( macro.  I choose
+	between the tests using the #+ or #-clisp read-timme
+	conditionalization facility.
+
+
 2011-02-03  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
 
 	* mv-grid/mv-grid.asd (mv-grid): Renamed many files (but did not

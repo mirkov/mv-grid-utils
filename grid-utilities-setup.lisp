@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 08:29:01 grid-utilities-setup.lisp>
+;; Time-stamp: <2011-02-12 16:58:06 grid-utilities-setup.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -73,8 +73,10 @@
 
 
 
+
+
   
 
 ;;;; Local variables: 
-;;;; change-log-default-name: "~/my-software-add-ons/my-lisp/mv-gsll/ChangeLog"
+;;;; change-log-default-name: "~/my-software-add-ons/my-lisp/mv-grid-utils/ChangeLog"
 ;;;; End:

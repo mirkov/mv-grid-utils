@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 08:27:28 grid-io.lisp>
+;; Time-stamp: <2011-02-12 14:09:06 grid-io.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -54,7 +54,7 @@ Arguments and Values:
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 3) 't stream)))
+     (read-grid '(2 3) 't stream))))
 
 
 

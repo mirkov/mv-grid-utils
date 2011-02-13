@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 09:22:42 mv-grid-utils.asd>
+;; Time-stamp: <2011-02-12 17:16:59 mv-grid-utils.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(asdf:defsystem mv-grid
+(asdf:defsystem mv-grid-utils
   :name "mv-grid"
   :author "Mirko Vukovic <mirko.vukovic@gmail.com>"
   :version "0.1"
@@ -54,10 +54,14 @@
 					     "clfm-generation-utilities")))))
   :depends-on (:cl-utilities
 	       :anaphora
+	       :split-sequence
 	       :grid
 	       :iterate
 	       :lisp-unit
 	       :my-utils
-	       :mv-gnuplot
+	       #|:mv-gnuplot|#
 	       :csv-parser))
 
+;;;; Local variables: 
+;;;; change-log-default-name: "~/my-software-add-ons/my-lisp/mv-grid-utils/ChangeLog"
+;;;; End:

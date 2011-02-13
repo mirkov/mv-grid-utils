@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-10 06:41:07 mv-gpl-header.txt>
+;; Time-stamp: <2011-02-12 17:21:18 clfm-by-example.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -64,14 +64,14 @@
   (:method (arg)
     "Apply sin to any argument"
     (sin arg))
-  (:method ((arg vector-double-float))
+  (:method ((arg #-clisp vector-double-float #+clisp vector))
     "apply `sin' to grid of double floats and return double-float"
     (map-grid :source arg
 	      :element-function #'sin
 	      :destination-specification (list (append '(foreign-array)
 						     (dimensions arg))
 					       'double-float)))
-  (:method ((arg vector-complex-double-float))
+  (:method ((arg #-clisp vector-complex-double-float #+clisp vector))
     "apply `sin' to grid of complex double-floats and return grid of
 complex double-floats"
     (map-grid :source arg
@@ -108,13 +108,13 @@ complex double-floats"
   (:method (arg)
     "Apply sin to any argument"
     (sin arg))
-  (:method ((arg vector-double-float))
+  (:method ((arg #-clisp vector-double-float #+clisp vector))
     "apply `sin' to grid of double floats and return double-float"
     (map-grid :source arg
 	      :element-function #'sin
 	      :destination-specification
 	      (one-arg-gmap-ds 'sin arg)))
-  (:method ((arg vector-complex-double-float))
+  (:method ((arg #-clisp vector-complex-double-float #+clisp vector))
     "apply `sin' to grid of complex double-floats and return grid of
 complex double-floats"
     (map-grid :source arg
@@ -140,7 +140,7 @@ complex double-floats"
   (:method (arg)
     "Apply sin to any argument"
     (sin arg))
-  (:method ((arg mvector))
+  (:method ((arg #+sbcl mvector #+clisp vector))
     "apply `sin' to grid of double floats and return double-float"
     (map-grid :source arg
 	      :element-function #'sin
@@ -161,7 +161,7 @@ complex double-floats"
   (:method (arg)
     "Apply sin to any argument"
     (sin arg))
-  (:method ((arg mvector))
+  (:method ((arg #+sbcl mvector #+clisp vector))
     "apply `sin' to grid of double floats and return double-float"
     (one-arg-map-call sin arg)))
 
@@ -207,7 +207,7 @@ argument log-grid function"
   (:method (arg)
     "Unspecialized method that can accept scalars"
     (log arg))
-  (:method ((arg mvector))
+  (:method ((arg #+sbcl mvector #+clisp vector))
     "apply `log' to grid of double floats and return double-float"
     (one-arg-map-call log arg *one&optional-second-arg-functions*)))
 
@@ -218,14 +218,14 @@ argument log-grid function"
   double-floats.")
   (:method (arg base)
     (log arg base))
-  (:method ((arg mvector) (base double-float))
+  (:method ((arg #+sbcl mvector #+clisp vector) (base #+sbcl double-float #+clisp float))
     "apply `log' to grid of double floats and return double-float"
     (two-arg-map-call log (arg t) (base) *one&optional-second-arg-functions*))
-  (:method ((arg mvector) (base mvector))
+  (:method ((arg #+sbcl mvector #+clisp vector) (base #+sbcl mvector #+clisp vector))
     "apply `log' to grid of complex double-floats and return grid of
 complex double-floats"
     (two-arg-map-call log (arg t) (base t) *one&optional-second-arg-functions*))
-  (:method ((arg double-float) (base mvector))
+  (:method ((arg #+sbcl double-float #+clisp float) (base #+sbcl mvector #+clisp vector))
     (two-arg-map-call log (arg) (base t) *one&optional-second-arg-functions*)))
 
 
