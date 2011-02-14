@@ -1,3 +1,21 @@
+2011-02-14    <977315@WTTCA1068>
+
+
+	* grid-utilities-setup.lisp (#\#): #m read time macro now does
+	nothing on clisp
+
+	* cl-fun-mapping/clfm-generation-utilities.lisp (two-arg-gmap-ds)
+	(one-arg-gmap-ds): Fixed tests to work on sbcl and clisp using the
+	now disabled #m read macro on clisp
+
+	* grid-operations/grid-io.lisp (read-grid): Fixed incorrect paths
+	to test files that remianed after the directory reorg.  Also test
+	file was in in correct directory and the csv one missing.  I
+	recreated it.
+
+	* grid-utilities-setup.lisp: Changed read-time-conditionalization
+	from machine name to lisp type
+
 2011-02-12    <977315@WTEHDZYYN71>
 
 	* mv-grid-utils.asd (mv-grid-utils): Removed my-utils and

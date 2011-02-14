@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 21:32:59 clfm-generation-utilities.lisp>
+;; Time-stamp: <2011-02-14 16:58:22 clfm-generation-utilities.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -116,27 +116,20 @@ grid-map's destination-specification.
 	    (typedef result-type)
 	    #+clisp t))))
 
-#-clisp
-;; (define-test one-arg-gmap-ds
-;;   (assert-equal '((foreign-array 3) double-float)
-;; 		(one-arg-gmap-ds 'sin
-;; 				  #m(1d0 2d0 3d0)))
-;;   (assert-equal '((foreign-array 2) (complex double-float))
-;; 		  (one-arg-gmap-ds 'log
-;; 				   #2m(#C(1d0 2d0) #C(3d0 4d0))
-;; 				   *one&optional-second-arg-functions*)))
-
-
-
-#+clisp
 (define-test one-arg-gmap-ds
-  (assert-equal '((array 3) double-float)
+  (assert-equal #+sbcl '((foreign-array 3) double-float)
+		#+clisp '((array 3) t)
 		(one-arg-gmap-ds 'sin
-				  #(1d0 2d0 3d0)))
-  (assert-equal '((array 2) (complex double-float))
+				  #+sbcl #m(1d0 2d0 3d0)
+				  #+clisp #(1d0 2d0 3d0)))
+  (assert-equal #+sbcl '((foreign-array 2) (complex double-float))
+		#+clisp '((array 2) t)
 		  (one-arg-gmap-ds 'log
-				   #2(#C(1d0 2d0) #C(3d0 4d0))
+				   #+sbcl #2m(#C(1d0 2d0) #C(3d0 4d0))
+				   #+clisp #2(#C(1d0 2d0) #C(3d0 4d0))
 				   *one&optional-second-arg-functions*)))
+
+
 
 
 (defgeneric two-arg-gmap-ds (function arg1 arg2 &optional dictionary)
@@ -177,38 +170,32 @@ grid-map's destination-specification.
 	    (typedef result-type)
 	    #+clisp t))))
 
-#-clisp
-;; (define-test two-arg-gmap-ds
-;;   (assert-equal '((foreign-array 3) double-float)
-;; 		(two-arg-gmap-ds 'expt
-;; 				 #m(1d0 2d0 3d0) 2d0))
-;;   (assert-equal '((foreign-array 3) double-float)
-;; 		(two-arg-gmap-ds 'expt 2d0 #m(1d0 2d0 3d0)))
-;;   (assert-equal '((foreign-array 3) (complex double-float))
-;; 		(two-arg-gmap-ds 'expt
-;; 				  #2m(#C(1d0 1d0) #C(1d0 1d0) #C(1d0 1d0))
-;; 				  #m(1d0 2d0 3d0)))
-;;   (assert-equal '((foreign-array 2) (complex double-float))
-;; 		  (two-arg-gmap-ds 'log  #2m(#C(1d0 2d0) #C(3d0 4d0)) 
-;; 				   3d0
-;; 		   *one&optional-second-arg-functions*)))
-
-#+clisp
 (define-test two-arg-gmap-ds
-  (assert-equal '((array 3) #+sbcl double-float #+clisp float)
+  (assert-equal #+sbcl '((foreign-array 3) double-float)
+		#+clisp '((array 3) t)
 		(two-arg-gmap-ds 'expt
-				 #(1d0 2d0 3d0) 2d0))
-  (assert-equal '((array 3) double-float)
-		(two-arg-gmap-ds 'expt 2d0 #(1d0 2d0 3d0)))
-  (assert-equal '((array 3) (complex double-float))
+				 #+sbcl #m(1d0 2d0 3d0)
+				 #+clisp #(1d0 2d0 3d0)
+				 2d0))
+  (assert-equal #+sbcl '((foreign-array 3) double-float)
+		#+clisp '((array 3) t)
+		(two-arg-gmap-ds 'expt 2d0
+				 #+sbcl #m(1d0 2d0 3d0)
+				 #+clisp #(1d0 2d0 3d0)))
+  (assert-equal #+sbcl '((foreign-array 3) (complex double-float))
+		#+clisp '((array 3) t)
 		(two-arg-gmap-ds 'expt
-				  #(#C(1d0 1d0) #C(1d0 1d0) #C(1d0 1d0))
-				  #(1d0 2d0 3d0)))
-  (assert-equal '((array 2) (complex double-float))
-		  (two-arg-gmap-ds 'log  #(#C(1d0 2d0) #C(3d0 4d0)) 
+				  #+sbcl #2m(#C(1d0 1d0) #C(1d0 1d0) #C(1d0 1d0))
+				  #+clisp #(#C(1d0 1d0) #C(1d0 1d0) #C(1d0 1d0))
+				  #+sbcl #m(1d0 2d0 3d0)
+				  #+clisp #(1d0 2d0 3d0)))
+  (assert-equal #+sbcl '((foreign-array 2) (complex double-float))
+		#+clisp '((array 2) t)
+		  (two-arg-gmap-ds 'log
+				   #+sbcl #2m(#C(1d0 2d0) #C(3d0 4d0))
+				   #+clisp #(#C(1d0 2d0) #C(3d0 4d0))
 				   3d0
 		   *one&optional-second-arg-functions*)))
-
 
 
 (defmacro one-arg-map-call (fun arg &optional dictionary)

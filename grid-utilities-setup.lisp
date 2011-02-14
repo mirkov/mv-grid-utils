@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 16:58:06 grid-utilities-setup.lisp>
+;; Time-stamp: <2011-02-14 17:00:02 grid-utilities-setup.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -35,8 +35,8 @@
 	 read-grid
 	 reduce-rows reduce-columns))|#
 
-(defparameter *array-type* #+CYSSHD1 'foreign-array
-	      #+|wtehdzyyn71| 'array
+(defparameter *array-type* #+sbcl 'foreign-array
+	      #+clisp 'array
   "Default array type, either foreign-array (default for GSLL use) or
   array (native CL) ")
 
@@ -47,8 +47,8 @@
 (defparameter *integer-type* '(unsigned-byte 32)
   "Default integer byte length")
 
-(defparameter *complex-type* #+cysshd1 '(complex double-float)
-	      #-cysshd1 'complex
+(defparameter *complex-type* #+sbcl '(complex double-float)
+	      #+clisp 'complex
 	      "Default complex type")
 
 
@@ -72,7 +72,27 @@
 
 
 
-
+;; disable the #m reader macro until it gets ported to clisp
+#+clisp
+(set-dispatch-macro-character
+ #\# #\m
+ (lambda (stream subchar arg)
+   (declare (ignore arg))
+   (declare (ignore subchar))
+   (read-char stream)
+   (let ((list (read-delimited-list #\) stream)))
+     (declare (ignore list))
+     nil)))
+     ;; `(make-grid
+     ;;   ;; Specification without dimensions, they will be filled in
+     ;;   ;; with initial-contents in make-grid.
+     ;;   '((foreign-array) ,(hashm-eltype arg))
+     ;;   :initial-contents
+     ;;   ,(if (find *row-separator* list)
+     ;; 	    (conslist
+     ;; 	     (mapcar 'conslist
+     ;; 		     (split-sequence:split-sequence *row-separator* list)))
+     ;; 	    `(list ,@(mapcar 'quote-numeric-list list)))))))
 
 
   
