@@ -1,6 +1,3 @@
-This directory still needs major cleanup as it is a result a merge of
-several development paths.
-
 The file grid-generic-functions&methods-examples.lisp is the
 documentation for this topic.
 
@@ -10,6 +7,5 @@ tests show this module's goals.
 The rest of that file shows by example how this functionality was
 implemented.
 
-
-Many files in this module have remnants of other development branches,
-and still need to be cleaned up.
+There may be remnants of other development branches in these files
+that still need to be cleaned up.
