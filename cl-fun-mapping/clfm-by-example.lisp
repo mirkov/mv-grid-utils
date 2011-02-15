@@ -241,7 +241,7 @@ complex double-floats"
   (assert-gmap-equal log%%% log *+1-vector*)
   (assert-gmap-equal log%%% log *complex-vector*)
   (assert-numerical-equal (log%%% 2d0) (log 2d0))
-  (assert-gmap2-equal log%%% log *+2-vector* 2d0)
+  (assert-gmap2-equal log%%% log *+2-vector* 2d0 )
   (assert-gmap2-equal log%%% log 2d0 *+2-vector*)
   (assert-gmap2-equal log%%% log *+2-vector* *+2-vector*))
 
@@ -279,7 +279,7 @@ argument log-grid function"
     *one&optional-second-arg-functions* )
 
 (define-test log%
-  (assert-gmap-equal log% log *+1-vector*)
+  (assert-gmap-equal log% log *+1-vector* )
   (assert-gmap-equal log% log *complex-vector*)
   (assert-numerical-equal (log% 2d0) (log 2d0))
   (assert-gmap2-equal log% log *+2-vector* 2d0)

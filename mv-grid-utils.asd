@@ -55,10 +55,14 @@
   :depends-on (:cl-utilities
 	       :anaphora
 	       :split-sequence
+	       #+sbcl :foreign-array
 	       :grid
 	       :iterate
 	       :lisp-unit
 	       :csv-parser))
+
+
+
 
 ;;;; Local variables: 
 ;;;; change-log-default-name: "~/my-software-add-ons/my-lisp/mv-grid-utils/ChangeLog"

@@ -104,7 +104,7 @@ grid-map's destination-specification.
 `dictionary' points to a dictionary where necessary information may be found
 ")
 
-  (:method ((function symbol) (arg #+ffa mvector #-ffa vector)
+  (:method ((function symbol) (arg #+sbcl mvector #+clisp vector)
 	    &optional (dictionary *one-arg-functions*))
 
     "Use the `function' symbol (such as `sin') and the argument type (such as '!F) to build the keyword argument :destination-specification"

@@ -56,6 +56,18 @@ expands into
   '(lambda (arg-z) (pow arg-x arg-y arg-z))
   (mcurry pow arg-x arg-y @!arg-z)))
                    
+
+(defun ?!-symbol-p (? s)
+  "Does the symbol start with `?!' where `?' stands for a single
+character?"
+  (check-type ? string)
+  (check-type s symbol)
+  (and (> (length (symbol-name s)) 2)
+       (string= (symbol-name s)
+		(format nil "~a!" ?)
+		:start1 0
+		:end1 2)))
+
 (defmacro mcurry (fun &rest args)
   "Create lambda expression of one argument.  The argument is derived
 from the only marked arg.  The function calls fun on all the args.
@@ -67,7 +79,7 @@ from the only marked arg.  The function calls fun on all the args.
  (lambda (y) (pow x y z))"
   (let (clean-args marked-arg)
     (mapc #'(lambda (arg)
-	      (push (if (my-utils:?!-symbol-p "@" arg)
+	      (push (if (?!-symbol-p "@" arg)
 			(progn
 			  (and marked-arg
 			       (error "Found more than one marked symbol"))

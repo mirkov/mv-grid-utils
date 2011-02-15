@@ -32,8 +32,8 @@
 (defparameter *+2-vector* (lseq 2d0 7d0 5)
   "Vector of values above 1d0")
 (defparameter *complex-vector*
-;;  #2m(#c(1d0 2d0) #c(5d0 -3d0))
-    #2(#c(1d0 2d0) #c(5d0 -3d0)))
+  #+sbcl #2m(#c(1d0 2d0) #c(5d0 -3d0))
+  #+clisp #2(#c(1d0 2d0) #c(5d0 -3d0)))
 (defparameter *natural-vector* (natgen 5)
   "Vector of natural numbers 1, 2, ...")
 
@@ -46,7 +46,7 @@
 
 (defmacro assert-gmap-equal (map-fun cl-fun arg)
   "Test correctness of a grid map function of one argument
-(grid vector).
+ (grid vector).
 
 Apply the grid-mapping function `map-fun' to `arg' (a grid)
 
@@ -54,6 +54,20 @@ Also map a corresponding `cl-fun' to `arg's contents"
   `(assert-numerical-equal
     (copy-to (,map-fun ,arg))
     (map-grid>cl #',cl-fun ,arg)))
+
+
+(defun vecp (arg)
+  "return t if arg is #+clisp vector #+sbcl mvector"
+  #+clisp
+  (if (equal (class-name (class-of (value arg)))
+			'vector)
+      t nil)
+  #+sbcl
+  (if (equal (find-class 'mvector)
+	     (car
+	      (sb-mop:class-direct-superclasses
+	       (find-class (class-name (class-of arg))))))
+      t nil))
 
 (defmacro assert-gmap2-equal (grid-map-fun cl-fun
 			      arg1 arg2)
@@ -65,13 +79,9 @@ Apply the grid-mapping function `map-fun' to `arg' (a grid)
 Also map a corresponding `cl-fun' to `arg's contents"
   (labels ((value (arg) (if (symbolp arg)
 			    (symbol-value arg)
-			    arg))
-	   (vecp (arg)
-	     (if (equal (class-name (class-of (value arg)))
-			#+clisp 'vector #+sbcl mvector);;'vector-double-float)
-		 t nil)))
-    (let ((vec1p (vecp arg1))
-	  (vec2p (vecp arg2)))
+			    arg)))
+    (let ((vec1p (vecp (value arg1)))
+	  (vec2p (vecp (value arg2))))
       (cond
 	((and vec1p (not vec2p))
 	 `(assert-numerical-equal

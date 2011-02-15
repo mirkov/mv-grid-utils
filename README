@@ -33,4 +33,5 @@ Development platforms:
  - CLISP on cygwin & windows 
  - SBCL on linux
 
-All unit tests pass on clisp.  sbcl still needs to be tested.
+All unit tests pass on clisp.  On sbcl I get 48 assertions passed, 0
+failed, 21 execution errors.

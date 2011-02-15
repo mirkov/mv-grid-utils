@@ -50,6 +50,15 @@
 	  remove-column remove-column-if))
 
 
+(defun test-grid-integer
+    (type dimensions &optional (index-fill-function 'grid::index-fill-decadal))
+  "Make a grid of the specified type and dimensions,
+where the contents of type signed-byte 8 are computed by the
+index-fill-function."
+  (map-grid :source index-fill-function
+	    :source-dims dimensions
+	    :destination-specification
+	    (grid::make-specification type dimensions '(signed-byte 8))))
 
 
 (defun closest-element ()
@@ -57,7 +66,8 @@
 
 
 (define-test grid-position
-  (let ((vector #(0 1 2 3 4 5)))
+  (let ((vector #+clisp #(0 1 2 3 4 5)
+		#+sbcl #7m(0 1 2 3 4 5)))
     (assert-equal 3
      (grid-position 3 vector))))
 
@@ -82,7 +92,8 @@ Default key is identity and default test is equal")
 
 
 (define-test grid-positions
-  (let ((vector #(0 1 2 3 4 5)))
+  (let ((vector #+clisp #(0 1 2 3 4 5)
+		#+sbcl #7m(0 1 2 3 4 5)))
     (assert-equal '(3 4 5)
      (grid-positions 3 vector :test #'<=))))
 
@@ -109,7 +120,8 @@ Default key is identity and default test is equal")
 
 
 (define-test grid-position-if
-  (let ((vector #(0 1 2 3 4 5)))
+  (let ((vector #+clisp #(0 1 2 3 4 5)
+		#+sbcl #7m(0 1 2 3 4 5)))
     (assert-equal 3
      (grid-position-if #'(lambda (arg)
 			   (= arg 3))
@@ -187,19 +199,31 @@ distance between them"
 
 
 (define-test position-element
-  (let ((vector (grid::test-grid-double-float 'array '(5))))
+  (let ((vector (grid::test-grid-double-float
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5))))
     (assert-equal 3
-		  (position-element 3 vector)))
-  (let ((matrix (grid::test-grid-double-float 'array '(5 6))))
+		  (position-element 3d0 vector)))
+  (let ((matrix (grid::test-grid-double-float
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5 6))))
     (assert-equal '(2 3)
-		  (position-element 23 matrix))))
+		  (position-element 23d0 matrix))))
 
 (defgeneric position-element (item grid &key key test)
   (:documentation "Return the index (or indices) of the first matching
 grid element.  Also returns the value for which the `test' returns t.
 Else return nil")
-  (:method (item (vector #+clisp vector
-		       #+sbcl mvector)
+  (:method (item (vector mvector)
+	    &key (key #'identity) (test #'equal))
+    (iter:iter (iter:for v :vector-element vector)
+	       (iter:for i :vector-element-index vector)
+	       (when (funcall test item (funcall key v))
+		 (return-from position-element (values i v))))
+    nil)
+  (:method (item (vector vector)
 	    &key (key #'identity) (test #'equal))
     (iter:iter (iter:for v :vector-element vector)
 	       (iter:for i :vector-element-index vector)
@@ -225,24 +249,39 @@ Else return nil")
 
 
 (define-test remove-row
-  (let ((matrix (grid::test-grid-double-float 'array '(5 6))))
-    (assert-numerical-equal
-     #2A((10 11 12 13 14 15)
-	 (20 21 22 23 24 25)
-	 (30 31 32 33 34 35)
-	 (40 41 42 43 44 45))
+  (let ((matrix (test-grid-integer
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5 6))))
+    (assert-grid-equal
+     #+clisp #2A((10 11 12 13 14 15)
+		 (20 21 22 23 24 25)
+		 (30 31 32 33 34 35)
+		 (40 41 42 43 44 45))
+     #+sbcl #7m((10 11 12 13 14 15)
+	       (20 21 22 23 24 25)
+	       (30 31 32 33 34 35)
+	       (40 41 42 43 44 45))
      (remove-row 0 matrix))
-    (assert-numerical-equal
-     #2A((0 1 2 3 4 5)
-	 (10 11 12 13 14 15)
-	 (20 21 22 23 24 25)
-	 (30 31 32 33 34 35))
+    (assert-grid-equal
+     #+clisp #2A((0 1 2 3 4 5)
+		 (10 11 12 13 14 15)
+		 (20 21 22 23 24 25)
+		 (30 31 32 33 34 35))
+     #+sbcl #7m((0 1 2 3 4 5)
+	       (10 11 12 13 14 15)
+	       (20 21 22 23 24 25)
+	       (30 31 32 33 34 35))
      (remove-row 4 matrix))
-    (assert-numerical-equal
-     #2A((0 1 2 3 4 5)
-	 (10 11 12 13 14 15)
-	 (30 31 32 33 34 35)
-	 (40 41 42 43 44 45))
+    (assert-grid-equal
+     #+clisp #2A((0 1 2 3 4 5)
+		 (10 11 12 13 14 15)
+		 (30 31 32 33 34 35)
+		 (40 41 42 43 44 45))
+     #+sbcl #7m((0 1 2 3 4 5)
+	       (10 11 12 13 14 15)
+	       (30 31 32 33 34 35)
+	       (40 41 42 43 44 45))
      (remove-row 2 matrix))))
 
 (defun remove-row (row matrix)
@@ -265,27 +304,42 @@ Else return nil")
 
 
 (define-test remove-col
-  (let ((matrix (grid::test-grid-double-float 'array '(5 6))))
-    (assert-numerical-equal
-     #2A((1 2 3 4 5)
-    (11 12 13 14 15)
-    (21 22 23 24 25)
-    (31 32 33 34 35)
-    (41 42 43 44 45))
+  (let ((matrix (test-grid-integer #+clisp 'array #+sbcl 'foreign-array '(5 6))))
+    (assert-grid-equal
+     #+clisp #2A((1 2 3 4 5)
+		 (11 12 13 14 15)
+		 (21 22 23 24 25)
+		 (31 32 33 34 35)
+		 (41 42 43 44 45))
+     #+sbcl #7m((1 2 3 4 5)
+		(11 12 13 14 15)
+		(21 22 23 24 25)
+		(31 32 33 34 35)
+		(41 42 43 44 45))
      (remove-col 0 matrix))
-    (assert-numerical-equal
-     #2A((0 1 2 3 4)
-	 (10 11 12 13 14)
-	 (20 21 22 23 24)
-	 (30 31 32 33 34)
-	 (40 41 42 43 44))
+    (assert-grid-equal
+     #+clisp #2A((0 1 2 3 4)
+		 (10 11 12 13 14)
+		 (20 21 22 23 24)
+		 (30 31 32 33 34)
+		 (40 41 42 43 44))
+     #+sbcl #7m((0 1 2 3 4)
+		(10 11 12 13 14)
+		(20 21 22 23 24)
+		(30 31 32 33 34)
+		(40 41 42 43 44))
      (remove-col 5 matrix))
-    (assert-numerical-equal
-     #2A((0 1 3 4 5)
-    (10 11 13 14 15)
-    (20 21 23 24 25)
-    (30 31 33 34 35)
-    (40 41 43 44 45))
+    (assert-grid-equal
+     #+clisp #2A((0 1 3 4 5)
+		 (10 11 13 14 15)
+		 (20 21 23 24 25)
+		 (30 31 33 34 35)
+		 (40 41 43 44 45))
+     #+sbcl #7m((0 1 3 4 5)
+		(10 11 13 14 15)
+		(20 21 23 24 25)
+		(30 31 33 34 35)
+		(40 41 43 44 45))
      (remove-col 2 matrix))))
 
 (defun remove-col (col matrix)
@@ -307,15 +361,22 @@ Else return nil")
 	:axis 1)))))
 
 (define-test remove-row-if
-  (let ((matrix (grid::test-grid-double-float 'array '(5 6))))
-    (assert-numerical-equal
-     #2A((0 1 2 3 4 5)
-    (10 11 12 13 14 15)
-    (30 31 32 33 34 35)
-    (40 41 42 43 44 45))
+  (let ((matrix (test-grid-integer
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5 6))))
+    (assert-grid-equal
+     #+clisp #2A((0 1 2 3 4 5)
+		 (10 11 12 13 14 15)
+		 (30 31 32 33 34 35)
+		 (40 41 42 43 44 45))
+     #+sbcl #7m((0 1 2 3 4 5)
+		(10 11 12 13 14 15)
+		(30 31 32 33 34 35)
+		(40 41 42 43 44 45))
      (remove-row-if #'(lambda (row)
 			(position-element 23 row))
-			matrix))))
+		    matrix))))
 
 (defun remove-row-if (test matrix)
   "Apply test to each row in turn.  Remove first row that satisfies
@@ -336,13 +397,21 @@ is returned"
 
 
 (define-test remove-col-if
-  (let ((matrix (grid::test-grid-double-float 'array '(5 6))))
-    (assert-numerical-equal
-     #2A(( 0  1  2  4  5)
+  (let ((matrix (test-grid-integer
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5 6))))
+    (assert-grid-equal
+     #+clisp #2A(( 0  1  2  4  5)
 	 (10 11 12 14 15)
 	 (20 21 22 24 25)
 	 (30 31 32 34 35)
 	 (40 41 42 44 45))
+     #+sbcl #7m(( 0  1  2  4  5)
+	       (10 11 12 14 15)
+	       (20 21 22 24 25)
+	       (30 31 32 34 35)
+	       (40 41 42 44 45))
      (remove-col-if #'(lambda (col)
 			(position-element 23 col))
 		    matrix))))
@@ -367,9 +436,13 @@ copy is returned"
 ;;; find
 
 (define-test find-row
-  (let ((matrix (grid::test-grid-double-float 'array '(5 6))))
-    (assert-numerical-equal
-     #(20 21 22 23 24 25)
+  (let ((matrix (test-grid-integer
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5 6))))
+    (assert-grid-equal
+     #+clisp #(20 21 22 23 24 25)
+     #+sbcl #7m(20 21 22 23 24 25)
      (find-row 22 matrix))))
 
 
@@ -383,9 +456,13 @@ copy is returned"
 
 
 (define-test find-col
-  (let ((matrix (grid::test-grid-double-float 'array '(5 6))))
-    (assert-numerical-equal
-     #(2 12 22 32 42)
+  (let ((matrix (test-grid-integer
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5 6))))
+    (assert-grid-equal
+     #+clisp #(2 12 22 32 42)
+     #+sbcl #7m(2 12 22 32 42)
      (find-col 22 matrix))))
 
 (defun find-col (item matrix &key (key #'identity) (test #'equal))
@@ -397,11 +474,14 @@ copy is returned"
   nil)
 
 (define-test find-row-if
-  (let ((matrix (grid::test-grid-double-float 'array '(5 6))))
-    (assert-numerical-equal
+  (let ((matrix (test-grid-integer
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5 6))))
+    (assert-grid-equal
      #(20 21 22 23 24 25)
      (find-row-if #'(lambda (arg)
-		   (equal arg 22))
+		      (equal arg 22))
 		  matrix))))
 
 
@@ -415,11 +495,14 @@ copy is returned"
 
 
 (define-test find-col-if
-  (let ((matrix (grid::test-grid-double-float 'array '(5 6))))
-    (assert-numerical-equal
+  (let ((matrix (test-grid-integer
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5 6))))
+    (assert-grid-equal
      #(2 12 22 32 42)
      (find-col-if #'(lambda (arg)
-		   (equal arg 22))
+		      (equal arg 22))
 		  matrix))))
 
 

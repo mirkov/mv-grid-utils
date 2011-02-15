@@ -1,3 +1,24 @@
+2011-02-15  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* grid-operations/grid-io.lisp (read-csv-grid): Modified tests by
+	explicitly specifying double float type on sbcl
+
+	* grid-operations/grid-iterating-functions.lisp (position-element):
+	Added methods that specialize separately on mvector and vector, so
+	that I can opeate on CL's vectors in sbcl
+
+	* cl-fun-mapping/clfm-unit-tests.lisp (assert-gmap2-equal, vecp):
+	Pulled `vecp' as its own function instead of defined in `labels',
+	since testing on sbcl involves mop, and makes the function a bit
+	verbose.
+
+	* grid-operations/grid-curry.lisp (?!-symbol-p): Copied function
+	from my-utils to this file to break connection with my-utils.
+
+	* grid-operations/make-grid-sequence.lisp (lseq, gseq): inserted
+	explicit code for sequence creation instead of using calls to my
+	own library
+
 2011-02-14    <977315@WTEHDZYYN71>
 
 	* grid-operations/grid-iterating-functions.lisp (grid-positions):

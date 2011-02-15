@@ -103,22 +103,50 @@ The floating type is either `single' or `double' (default), determined by `type'
 		 :source-dims `(,count)
 		 :destination-specification `((,*array-type* ,count) (complex ,type))))
 
-(macrolet ((seq (fun)
-	     `(grid::make-grid `((,*array-type*) ,*float-type*)
-			       ;; make-foreign-array 'double-float :dimensions count
-			       :initial-contents
-			       (coerce (,fun (coerce begin 'double-float)
-					     (coerce end 'double-float)
-					     count) 'list))))
-  (defun lseq (begin end &optional (count 51))
-    "linear progression between two positive numbers `begin' and `end'
+
+(define-test lseq
+  (assert-grid-equal
+   #+sbcl #m(1d0 2d0 3d0)
+   #+clisp #(1d0 2d0 3d0)
+   (lseq 1 3 3))
+  (assert-grid-equal
+   #+sbcl #m(3d0 2d0 1d0)
+   #+clisp #(3d0 2d0 1d0)
+   (lseq 3 1 3)))
+  
+
+(defun lseq (begin end &optional (count 51))
+  "linear progression between two positive numbers `begin' and `end'
 `begin' can be less than `end'"
-    (declare (number begin end))
-    (seq my-utils:rseq))
+  (declare (number begin end))
+  (let ((scale (/ (- end begin)
+		  (1- count))))
+    (map-grid :source #'(lambda (i)
+			  (+ (*  i scale)
+			     begin))
+	      :destination-specification
+	      `((,*array-type* ,count) ,*float-type*))))
 
 
-  (defun gseq (begin end &optional (count 51))
-    "Geometric progression between two positive numbers `begin' and `end'
+(define-test gseq
+  (assert-grid-equal
+   #+sbcl #m(1d0 2d0 4d0 8d0)
+   #+clisp #(1d0 2d0 4d0 8d0)
+   (gseq 1 8 4))
+  (assert-grid-equal
+   #+sbcl #m(8d0 4d0 2d0 1d0)
+   #+clisp #(8d0 4d0 2d0 1d0)
+   (gseq 8 1 4)))
+
+(defun gseq (begin end &optional (count 51))
+  "Geometric progression between two positive numbers `begin' and `end'
 `begin' can be less than `end'"
-    (declare (number begin end))
-    (seq my-utils:xpseq)))
+  (declare (number begin end))
+  (let ((rat (expt (/ end begin) (/ 1. (1- count))))
+	(value begin))
+    (map-grid :source #'(lambda (i)
+			  (declare (ignore i))
+			  (prog1 value
+			    (setf value (* value rat))))
+	      :destination-specification
+	      `((,*array-type* ,count) ,*float-type*))))
