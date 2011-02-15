@@ -34,7 +34,7 @@
 ;; +----------+------+-----+-------+
 ;; |remove    |  M   | M   |       |
 ;; +----------+------+-----+-------+
-;; |substitute|      |     |       |
+;; |substitute|  M/V |     |       |
 ;; +----------+------+-----+-------+
 ;; 
 ;;
@@ -47,7 +47,8 @@
 
 (export '(grid-position position-nearest positions
 	  remove-row remove-row-if
-	  remove-column remove-column-if))
+	  remove-column remove-column-if
+	  grid-substitute))
 
 
 (defun test-grid-integer
@@ -246,7 +247,37 @@ Else return nil")
     nil))
 
 
+(define-test grid-substitute
+  (let ((matrix (test-grid-integer
+		 #+clisp 'array
+		 #+sbcl 'foreign-array
+		 '(5 6))))
+    (assert-grid-equal
+     #+clisp #2A((0 1 2 3 4 5)
+		 (-10 11 12 13 14 15)
+		 (20 21 22 23 24 25)
+		 (30 31 32 33 34 35)
+		 (40 41 42 43 44 45))
+     #+sbcl #7m((0 1 2 3 4 5)
+		(-10 11 12 13 14 15)
+		(20 21 22 23 24 25)
+		(30 31 32 33 34 35)
+		(40 41 42 43 44 45))
+     (grid-substitute -10 10 matrix))))
 
+
+     
+
+(defun grid-substitute (new old grid &key (test #'=) (key #'identity))
+  "Return copy of sequence in which each element that
+  satisfies the `test' is replaced by `new'"
+    (map-grid :source grid
+	    :element-function #'(lambda (element)
+				  (if (funcall test
+					       (funcall key element)
+					       old)
+				      new
+				      element))))
 
 
 (define-test remove-row

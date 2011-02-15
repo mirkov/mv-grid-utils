@@ -19,6 +19,7 @@
 
 (in-package :mv-grid)
 
+(export '(read-grid))
 
 (defgeneric read-grid (dimensions stream file-format
 				  &optional eof-error-p
@@ -54,12 +55,12 @@ Arguments and Values:
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 3) 't stream))))
+     (read-grid '(2 3) stream 't))))
 
 
 
-(defmethod read-grid (dimensions (file-format (eql 't))
-		      (stream file-stream)
+(defmethod read-grid (dimensions (stream file-stream)
+		      (file-format (eql 't))
 		      &optional (eof-error-p t) eof-value
 		      &key (type 'double-float))
   "Use `read' to read grid entries from stream.  The file need not be

@@ -19,7 +19,7 @@
 
 (in-package :mv-grid)
 
-(export '(matrify))
+(export '(matrify grid-coerce))
 
 (defun matrify (vector rows columns)
   "Remap `vector' into a `rows'X`columns' matrix"
@@ -27,3 +27,11 @@
 		 :destination-specification `((,*array-type* ,rows ,columns)
 					      ,*float-type*)))
 
+(defun grid-coerce (grid type)
+  "Return new grid, with all elements coerced to the new type
+
+The array type is controlled by *array-type*"
+  (map-grid :source grid
+	    :destination-specification
+	    `((,*array-type* ,@(dimensions grid))
+	      ,type)))

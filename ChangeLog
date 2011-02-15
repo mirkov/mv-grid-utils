@@ -1,3 +1,11 @@
+2011-02-15  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* grid-operations/grid-manipulations.lisp (grid-coerce): Added new
+	function.
+
+	* grid-operations/grid-io.lisp (read-grid): Fixed bug in method
+	specialization
+
 2011-02-15    <977315@WTTCA1068>
 
 	* cl-fun-mapping/clfm-unit-tests.lisp (assert-gmap2-equal, value):
