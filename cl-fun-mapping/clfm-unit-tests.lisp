@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 21:40:05 clfm-unit-tests.lisp>
+;; Time-stamp: <2011-02-15 11:14:16 clfm-unit-tests.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -69,6 +69,13 @@ Also map a corresponding `cl-fun' to `arg's contents"
 	       (find-class (class-name (class-of arg))))))
       t nil))
 
+
+(defun value (arg)
+  (if (symbolp arg)
+      (symbol-value arg)
+      arg))
+
+
 (defmacro assert-gmap2-equal (grid-map-fun cl-fun
 			      arg1 arg2)
   "Test correctness of a grid map function of two arguments.
@@ -77,34 +84,31 @@ Arguments can be scalars or grid vectors
 Apply the grid-mapping function `map-fun' to `arg' (a grid)
 
 Also map a corresponding `cl-fun' to `arg's contents"
-  (labels ((value (arg) (if (symbolp arg)
-			    (symbol-value arg)
-			    arg)))
-    (let ((vec1p (vecp (value arg1)))
-	  (vec2p (vecp (value arg2))))
-      (cond
-	((and vec1p (not vec2p))
-	 `(assert-numerical-equal
-	   (copy-to (,grid-map-fun ,arg1 ,arg2))
-	   (map-grid>cl #'(lambda (x)
-			    (,cl-fun x ,arg2))
-			,arg1)
-	   'arg1-vec))
-	((and (not vec1p) vec2p)
-	 `(assert-numerical-equal
-	   (copy-to (,grid-map-fun ,arg1 ,arg2))
-	   (map-grid>cl #'(lambda (x)
-			    (,cl-fun ,arg1 x))
-			,arg2)
-	   'arg2-vec))
-	((and vec1p vec2p)
-	 `(assert-numerical-equal
-	   (copy-to (,grid-map-fun ,arg1 ,arg2))
-	   (map-grid>cl #'(lambda (x y)
-			    (,cl-fun x y))
-			,arg1 ,arg2)
-	   'arg&base-vec))
-	(t (error "Neither argument was specified as vector, ~a, ~a" grid-map-fun cl-fun))))))
+  (let ((vec1p (vecp (value arg1)))
+	(vec2p (vecp (value arg2))))
+    (cond
+      ((and vec1p (not vec2p))
+       `(assert-numerical-equal
+	 (copy-to (,grid-map-fun ,arg1 ,arg2))
+	 (map-grid>cl #'(lambda (x)
+			  (,cl-fun x ,arg2))
+		      ,arg1)
+	 'arg1-vec))
+      ((and (not vec1p) vec2p)
+       `(assert-numerical-equal
+	 (copy-to (,grid-map-fun ,arg1 ,arg2))
+	 (map-grid>cl #'(lambda (x)
+			  (,cl-fun ,arg1 x))
+		      ,arg2)
+	 'arg2-vec))
+      ((and vec1p vec2p)
+       `(assert-numerical-equal
+	 (copy-to (,grid-map-fun ,arg1 ,arg2))
+	 (map-grid>cl #'(lambda (x y)
+			  (,cl-fun x y))
+		      ,arg1 ,arg2)
+	 'arg&base-vec))
+      (t (error "Neither argument was specified as vector, ~a, ~a" grid-map-fun cl-fun)))))
 
 
 

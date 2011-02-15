@@ -1,3 +1,12 @@
+2011-02-15    <977315@WTTCA1068>
+
+	* cl-fun-mapping/clfm-unit-tests.lisp (assert-gmap2-equal, value):
+	Pulled `value' into its own function.  The macro was complaining
+	that the function was not defined when I had it under labels.
+
+	* grid-operations/grid-iterating-functions.lisp
+	(position-element): Filtered the mvector method for sbcl only
+
 2011-02-15  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
 
 	* grid-operations/grid-io.lisp (read-csv-grid): Modified tests by

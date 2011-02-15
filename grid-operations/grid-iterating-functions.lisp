@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-14 22:24:53 grid-iterating-functions.lisp>
+;; Time-stamp: <2011-02-15 11:15:50 grid-iterating-functions.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -204,18 +204,19 @@ distance between them"
 		 #+sbcl 'foreign-array
 		 '(5))))
     (assert-equal 3
-		  (position-element 3d0 vector)))
+		  (position-element #+sbcl 3d0 #+clisp 3 vector)))
   (let ((matrix (grid::test-grid-double-float
 		 #+clisp 'array
 		 #+sbcl 'foreign-array
 		 '(5 6))))
     (assert-equal '(2 3)
-		  (position-element 23d0 matrix))))
+		  (position-element #+sbcl 23d0 #+clisp 23 matrix))))
 
 (defgeneric position-element (item grid &key key test)
   (:documentation "Return the index (or indices) of the first matching
 grid element.  Also returns the value for which the `test' returns t.
 Else return nil")
+  #+sbcl
   (:method (item (vector mvector)
 	    &key (key #'identity) (test #'equal))
     (iter:iter (iter:for v :vector-element vector)
