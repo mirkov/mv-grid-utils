@@ -1,3 +1,8 @@
+2011-02-14    <977315@WTEHDZYYN71>
+
+	* grid-operations/grid-iterating-functions.lisp (grid-positions):
+	New function.  Returns positions and values of all matches
+
 2011-02-14    <977315@WTTCA1068>
 
 

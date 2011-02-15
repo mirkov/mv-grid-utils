@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-10 07:19:05 grid-iterating-functions.lisp>
+;; Time-stamp: <2011-02-14 22:24:53 grid-iterating-functions.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -29,6 +29,8 @@
 ;; |find      |  M   |  M  |       |
 ;; +----------+------+-----+-------+
 ;; |position  |  V   |  V  |       |
+;; +----------+------+-----+-------+
+;; |positions |  V   |     |       |
 ;; +----------+------+-----+-------+
 ;; |remove    |  M   | M   |       |
 ;; +----------+------+-----+-------+
@@ -71,6 +73,33 @@ Default key is identity and default test is equal")
 	       (iter:for i :vector-element-index vector)
 	       (when (funcall test item (funcall key v))
 		 (return-from grid-position (values i v)))))
+  (:method (item (matrix #+sbcl matrix
+			 #+clisp array)
+	    &key (key #'identity) (test #'equal))
+    "Return matrix indices (cons row col) of match"
+    (declare (ignore matrix item key test))
+    (error "(`grid-position' is not implemented on matrices")))
+
+
+(define-test grid-positions
+  (let ((vector #(0 1 2 3 4 5)))
+    (assert-equal '(3 4 5)
+     (grid-positions 3 vector :test #'<=))))
+
+(defgeneric grid-positions (item grid &key key test)
+  (:documentation "Return item indices in grid.  Also return the found values
+
+Default key is identity and default test is equal")
+  (:method (item (vector #+sbcl grid::mvector
+			 #+clisp vector)
+	    &key (key #'identity) (test #'equal))
+    "Return vector index that matches item.  Also return item value"
+    (iter:iter (iter:for v :vector-element vector)
+	       (iter:for i :vector-element-index vector)
+	       (when (funcall test item (funcall key v))
+		 (iter:collect v into vs)
+		 (iter:collect i into is))
+	       (iter:finally (return (values is vs)))))
   (:method (item (matrix #+sbcl matrix
 			 #+clisp array)
 	    &key (key #'identity) (test #'equal))
