@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-14 17:13:21 grid-io.lisp>
+;; Time-stamp: <2011-02-25 21:08:53 grid-io.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -88,7 +88,7 @@ Default type is 'double-float"
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 3) 'csv stream t nil :type #+clisp t #+sbcl 'double-float)))
+     (read-grid '(2 3) :csv stream t nil :type #+clisp t #+sbcl 'double-float)))
   (with-open-file (stream
 		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
 		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
@@ -96,7 +96,7 @@ Default type is 'double-float"
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(nil 3) 'csv stream t nil :type #+clisp t #+sbcl 'double-float)))
+     (read-grid '(nil 3) :csv stream t nil :type #+clisp t #+sbcl 'double-float)))
   (with-open-file (stream
 		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
 		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
@@ -104,7 +104,7 @@ Default type is 'double-float"
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 nil) 'csv stream t nil :type #+clisp t #+sbcl 'double-float)))
+     (read-grid '(2 nil) :csv stream t nil :type #+clisp t #+sbcl 'double-float)))
   (with-open-file (stream
 		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
 		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
@@ -112,9 +112,9 @@ Default type is 'double-float"
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(nil nil) 'csv stream t :eof :type #+clisp t #+sbcl 'double-float))))
+     (read-grid '(nil nil) :csv stream t :eof :type #+clisp t #+sbcl 'double-float))))
 
-(defmethod read-grid (dimensions (file-format (eql 'csv))
+(defmethod read-grid (dimensions (file-format (eql :csv)) 
 		      stream
 		      &optional (eof-error-p t) eof-value
 		      &key (type t))
@@ -145,8 +145,10 @@ Default data type is t
 	  ;; in it
 	  (values
 	   (mapcar #'(lambda (arg)
-		       (coerce (read-from-string arg)
-			       type))
+		       (if arg
+			   (coerce (read-from-string arg)
+				   type)
+			   nil))
 		   record)
 	   cols))))
     (let ((record nil))
@@ -176,6 +178,8 @@ Default data type is t
 		   (if record (list record)
 		       record)))
 	      (loop for fields = next-record
+		   for i from 1
+		   do (print i)
 		 while fields
 		 do (push fields data))
 	      (make-grid `((,*array-type* nil) ,type)
