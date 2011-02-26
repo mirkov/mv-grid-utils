@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-26 11:38:58 grid-io.lisp>
+;; Time-stamp: <2011-02-26 15:40:25 grid-io.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -86,7 +86,8 @@ Default type is 'double-float"
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 3) stream :csv :eof-error-p t :eof-value nil :type #+clisp t #+sbcl 'double-float)))
+     (read-grid '(2 3) stream :csv :eof-error-p t :eof-value nil
+		:key :read-from-string :type 'double-float)))
   (with-open-file (stream
 		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
 		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
@@ -94,7 +95,8 @@ Default type is 'double-float"
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(nil 3) stream :csv :eof-error-p t :eof-value nil :type #+clisp t #+sbcl 'double-float)))
+     (read-grid '(nil 3) stream :csv :eof-error-p t :eof-value nil
+		:key :read-from-string :type 'double-float)))
   (with-open-file (stream
 		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
 		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
@@ -102,7 +104,8 @@ Default type is 'double-float"
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 nil) stream :csv :eof-error-p t :eof-value nil :type #+clisp t #+sbcl 'double-float)))
+     (read-grid '(2 nil) stream :csv :eof-error-p t :eof-value nil
+		:key :read-from-string :type 'double-float)))
   (with-open-file (stream
 		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
 		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
@@ -111,13 +114,14 @@ Default type is 'double-float"
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
      (read-grid '(nil nil) stream :csv :eof-error-p t :eof-value :eof
-		:type #+clisp t #+sbcl 'double-float))))
+		:key :read-from-string :type 'double-float))))
 
 (defmethod read-grid (dimensions stream 
 		      (file-format (eql :csv))
 		      &key (eof-error-p t) eof-value
-		       (type t))
-  "Read a 2D grid from a csv file using `csv-parser:read-csv-line.
+		      (type t)
+		      (key t))
+  "Read a 2D grid from a csv file using `picard-csv:read-csv-line.
 
  - dimensions -two element list (rows cols)
  - rows -- number or nil.  If nil, determined from first row.
@@ -129,27 +133,16 @@ return depends on eof-error-p and eof-value.
 If cols are specified, and file does not contain enough cols,
 consequences are unspecified.
 
-Default data type is t
+Return values:
 
-"
-;;  (break)
+This method uses `next-csv-record' to read the next line in the file,
+process and return its contents.  It passes the `key' and `type'
+arguments to `next-csv-record'.  See the documentation on
+`next-csv-record' on how to use `key' and `type' to controll the
+parsing of csv records."
+  ;;  (break)
   (symbol-macrolet
-      ((next-record
-	;; record reading macro: csv line read returns a list of
-	;; strings - but I want numbers (mostly).  I read from those
-	;; strings, and coerce to requested type.
-	(multiple-value-bind (record cols)
-	    (csv-parser:read-csv-line stream)
-	  ;; macro must return both the list and the number of items
-	  ;; in it
-	  (values
-	   (mapcar #'(lambda (arg)
-		       (if arg
-			   (coerce (read-from-string arg)
-				   type)
-			   nil))
-		   record)
-	   cols))))
+      ((next-record (next-csv-record stream key type)))
     (let ((record nil))
       (destructuring-bind (rows cols) dimensions
 	(unless cols
@@ -162,10 +155,10 @@ Default data type is t
 			 (or record
 			     (setf record next-record))
 			 (when (null record)
-			      (if eof-error-p
-				  (error #+clisp 'SYSTEM::SIMPLE-END-OF-FILE
-					 "End of file")
-				  (return-from read-grid eof-value)))
+			   (if eof-error-p
+			       (error #+clisp 'SYSTEM::SIMPLE-END-OF-FILE
+				      "End of file")
+			       (return-from read-grid eof-value)))
 			 (pop record))
 	     :source-dims `(,rows ,cols)
 	     :destination-specification `((,*array-type* ,rows ,cols)
@@ -177,10 +170,102 @@ Default data type is t
 		   (if record (list record)
 		       record)))
 	      (loop for fields = next-record
-;;		   for i from 1
-;;		   do (print i)
+		 ;;		   for i from 1
+		 ;;		   do (print i)
 		 while fields
 		 do (push fields data))
 	      (make-grid `((,*array-type* nil) ,type)
 			 :initial-contents (nreverse data))))))))
 
+
+
+(define-test next-csv-record
+   (with-input-from-file (stream 
+			  #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
+			  #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv")
+     (multiple-value-bind (values count)
+	      (next-csv-record stream t)
+       (assert-equal
+	'("1" "2" "3") values)
+       (assert-numerical-equal 3 count)))
+   (with-input-from-file (stream 
+		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
+		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv")
+     (multiple-value-bind (values count)
+	      (next-csv-record stream :read-from-string)
+       (assert-equal
+	'(1 2 3) values)
+       (assert-numerical-equal 3 count)))
+   (with-input-from-file (stream
+		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
+		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
+)
+     (multiple-value-bind (values count)
+	 (next-csv-record stream :read-from-string
+			  'double-float)
+       (assert-equal
+	'(1d0 2d0 3d0) values)
+       (assert-numerical-equal 3 count)))
+   (with-input-from-file (stream
+		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
+		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
+)
+     (multiple-value-bind (values count)
+	 (next-csv-record stream
+			  #'(lambda (value column)
+			      (expt (read-from-string
+				     value)
+				    column)))
+       (assert-equal
+	'(1 2 9) values)
+       (assert-numerical-equal 3 count))))
+
+
+
+
+(defgeneric next-csv-record (stream key &optional type)
+  (:documentation
+   "Read next record from csv-file bound to `stream' and return the
+record contents as a list.
+
+The second returned value is the number of found records.
+
+We use csv-parser:read-csv-line from picard-csv to read csv records.
+This function returns the record contents as a list of strings.
+
+Parameters `key' and `type' can be used to convert the string to a
+desired type.
+
+Depending on the value of `key' the record strings can be extracted
+and post-processed as follows:
+ - key (eql t) returns the string
+ - key (eql :read-from-string) applies `read-from-string' to the string
+ - key can be a two-argument function (string and column number) to 
+   process the string
+
+In case of `key' being :read-from-string, type can be used to coerce
+the result of read to a desired type
+")
+  (:method ((stream stream) (key (eql t)) &optional type)
+    (declare (ignore type))
+    (csv-parser:read-csv-line stream))
+  (:method ((stream stream) (key (eql :read-from-string))
+	    &optional (type t))
+    (multiple-value-bind (record cols)
+	(csv-parser:read-csv-line stream)
+      (values
+       (mapcar #'(lambda (string)
+		   (coerce (read-from-string string)
+			   type))
+	       record)
+       cols)))
+  (:method ((stream stream) (key function)
+	    &optional  (type t))
+    (declare (ignore type))
+    (multiple-value-bind (record cols)
+	(csv-parser:read-csv-line stream)
+      (values
+       (loop for string in record
+	  for column from 0
+	  collect (funcall key string column))
+       cols))))

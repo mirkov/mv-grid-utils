@@ -1,8 +1,16 @@
 2011-02-26    <977315@WTEHDZYYN71>
 
+	* mv-grid-utils.asd (mv-grid-utils): Using alexandria,
+	foreign-array on all platforms, and picard-csv
+
 	* grid-operations/grid-io.lisp (read-grid): Changed optional
 	arguments to keyword arguments.  Adapted all unit-tests.
 	(read-grid): Fixed error in argument sequence
+	(read-grid): Changed csv reader to picard-csv.  This is still the
+	same old reader I used before, but I renamed it to distinguish it
+	from the fare-csv system available via quicklisp
+	(next-csv-record): New function to process csv record fields.
+	(read-grid): Modified to use `next-csv-record'
 
 2011-02-25    <977315@WTEHDZYYN71>
 

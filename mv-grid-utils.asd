@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-19 22:44:13 mv-grid-utils.asd>
+;; Time-stamp: <2011-02-26 15:34:59 mv-grid-utils.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -54,8 +54,9 @@
 					     "clfm-generation-utilities")))))
   :depends-on (:cl-utilities
 	       :anaphora
+	       :alexandria
 	       :split-sequence
-	       #+sbcl :foreign-array
+	       :foreign-array
 	       :grid
 	       :iterate
 	       :lisp-unit
