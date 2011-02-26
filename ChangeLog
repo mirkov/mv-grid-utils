@@ -1,3 +1,9 @@
+2011-02-26    <977315@WTEHDZYYN71>
+
+	* grid-operations/grid-io.lisp (read-grid): Changed optional
+	arguments to keyword arguments.  Adapted all unit-tests.
+	(read-grid): Fixed error in argument sequence
+
 2011-02-25    <977315@WTEHDZYYN71>
 
 	* grid-operations/grid-io.lisp (read-grid): Changed csv format
