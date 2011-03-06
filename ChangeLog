@@ -1,4 +1,15 @@
+2011-03-05    <977315@WTEHDZYYN71>
+
+	* grid-operations/grid-2d-mappers.lisp (gcmap): Renamed from
+	grid-curry.  Added facilities for 2d mapping (gmap2d and gmap-vl)
+
 2011-02-26    <977315@WTEHDZYYN71>
+
+	* grid-operations/grid-io.lisp (read-grid): When reading a csv
+	list, added provision to check for number of fields in record, and
+	to either signal an error, or fill with defaults.
+	(record-fill): Added function to fill records shorter than the
+	required csv record lenght.
 
 	* mv-grid-utils.asd (mv-grid-utils): Using alexandria,
 	foreign-array on all platforms, and picard-csv

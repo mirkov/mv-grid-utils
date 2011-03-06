@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-26 15:34:59 mv-grid-utils.asd>
+;; Time-stamp: <2011-03-05 19:57:38 mv-grid-utils.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -37,7 +37,7 @@
 			 (:file "grid-manipulations")
 			 (:file "grid-mappers")
 			 (:file "grid-io")
-			 (:file "grid-curry")))
+			 (:file "grid-2d-mappers")))
    (:module "cl-fun-mapping"
 	   ;; :pathname #P"./"
 	    :depends-on ("package-def")
