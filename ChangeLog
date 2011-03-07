@@ -1,3 +1,10 @@
+2011-03-06    <977315@WTEHDZYYN71>
+
+	* grid-operations/grid-io.lisp (read-grid): Converted read-grid
+	to use read-row-table.  Tested.
+	(read-grid): Modified to use end-of-file signalization from
+	read-table-line
+
 2011-03-05    <977315@WTEHDZYYN71>
 
 	* grid-operations/grid-2d-mappers.lisp (gcmap): Renamed from
