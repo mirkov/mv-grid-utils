@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-14 17:00:02 grid-utilities-setup.lisp>
+;; Time-stamp: <2011-03-08 13:15:47 grid-utilities-setup.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -73,7 +73,8 @@
 
 
 ;; disable the #m reader macro until it gets ported to clisp
-#+clisp
+#+clisp nil
+#|
 (set-dispatch-macro-character
  #\# #\m
  (lambda (stream subchar arg)
@@ -82,7 +83,7 @@
    (read-char stream)
    (let ((list (read-delimited-list #\) stream)))
      (declare (ignore list))
-     nil)))
+     nil)))|#
      ;; `(make-grid
      ;;   ;; Specification without dimensions, they will be filled in
      ;;   ;; with initial-contents in make-grid.
