@@ -1,6 +1,8 @@
 2011-11-08  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* grid-operations/grid-2d-mappers.lisp (gcmap): Added grid-bind
+	(grid-bind): Fixed small bug.  Did not initialize the vars prior
+	to doing `setf's on them
 
 	* grid-operations/make-grid-sequence.lisp (gseq): Added to export
 	list

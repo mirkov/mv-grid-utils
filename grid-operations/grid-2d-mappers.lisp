@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-08 15:26:50 grid-2d-mappers.lisp>
+;; Time-stamp: <2011-11-08 16:05:14 grid-2d-mappers.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -542,7 +542,8 @@ Currently, the grid type (array or foreign-array) and the element type
 are determined by *array-type* and *float-type "
   (alexandria:with-gensyms (dimensions affi walker tester specs)
     (alexandria:once-only (grid)
-      `(let* ((,dimensions (dimensions ,grid))
+      `(let* (,@vars
+	      (,dimensions (dimensions ,grid))
 	      (,affi (grid::affi ,grid))
 	      (,specs (list (append (list ',*array-type*) ,dimensions)
 			    ',*float-type*)))
