@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-03-06 19:10:42 grid-io.lisp>
+;; Time-stamp: <2011-08-25 22:26:21 grid-io.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -128,7 +128,7 @@ Default type is 'double-float"
 		      &key (eof-error-p t) eof-value
 		      (eor-error-p nil)
 		      (type t)
-		      (key t)
+		      (key :read-from-string)
 		      missing-field-value
 		      trace)
   "Read a 2D grid from a csv file using `picard-csv:read-csv-line.
@@ -156,25 +156,31 @@ output
 
 Return values:
 
-This method uses `next-table-row' to read the next line in the file,
+This method uses `next-table-record' to read the next line in the file,
 process and return its contents.  It passes the `key' and `type'
-arguments to `next-table-row'.  See the documentation on
-`next-table-row' on how to use `key' and `type' to controll the
-parsing of csv records."
-  ;;  (break)
+arguments to `next-table-record'.  See the documentation on
+`next-table-record' on how to use `key' and `type' to control the
+parsing of csv records.
+
+Note: The routine uses an internal function `next-record'.  It uses
+`next-table-record' to read the next record and store it in a local
+value.  Do not depend on `next-record' to return the next record.
+Instead, execute it, and access the new record from `record'"
+
   (destructuring-bind (rows cols) dimensions
     (let ((record nil)
 	  (row 0))
       (labels 
 	  ((next-record ()
+	     ;; NOTE: next-record does not return the next record.
+	     ;; Instead it stores it in `record'.
 	     (multiple-value-setq (record cols)
 	       (next-table-record stream key row
 				  :eor-error-p eor-error-p
 				  :eof-error-p nil :eof-value :eof
 				  :missing-field-value missing-field-value
 				  :type type
-				  :length cols
-				  ))
+				  :length cols))
 	     (when trace
 	       (format t "~a: ~a~%" row record))
 	     (incf row)))
@@ -198,20 +204,16 @@ parsing of csv records."
 		   ;; Here record is a list (a b c ...).  In order for
 		   ;; push to work, I need to embed it in another
 		   ;; list: ((a b c ...))
-		   (if record (list record)
-		       (next-record))))
-	      ;; (print 1)
- 	      ;; (do ((i 0 (incf i)))
-	      ;; 	  ((= i 5) (nreverse data))
-	      ;; 	(multiple-value-bind (fields count) (next-record)
-	      ;; 	  (declare (ignore count))
-	      ;; 	  (push fields data)))
+		   (list (or record
+			     (progn
+			       (next-record)
+			       record)))))
 	      (loop 
 		 do (next-record)
 	      	 until (eq record :eof)
 	      	 do (push record data))
 	      (make-grid `((,*array-type* nil) ,type)
-		       :initial-contents (nreverse data))))))))
+			 :initial-contents (nreverse data))))))))
 
 
 

@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-03-05 19:57:12 grid-2d-mappers.lisp>
+;; Time-stamp: <2011-11-08 15:26:50 grid-2d-mappers.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 
 (in-package :mv-grid)
 
-(export '(gcmap gmap2d gmap-vl))
+(export '(gcmap gpmap gmap2d gmap-vl grid-bind))
 
 (define-test gcmap
     (assert-expands 
@@ -41,7 +41,10 @@ keeping all other args constant.
 
 A call (gcmap (fun x y @!q z) vector)
 expands into
-(gmap #'(lambda (q) (fun x y q z)) vector)"
+
+ (gmap #'(lambda (q) (fun x y q z)) vector)
+
+"
   `(gmap (mcurry ,function ,@args) ,vector))
 
 
@@ -59,10 +62,11 @@ expands into
 
 (defun ?!-symbol-p (? s)
   "Does the symbol start with `?!' where `?' stands for a single
-character?"
+character?.  If `s' is not symbol, return nil"
   (check-type ? string)
-  (check-type s symbol)
-  (and (> (length (symbol-name s)) 2)
+;;  (check-type s symbol)
+  (and (typep s 'symbol)
+       (> (length (symbol-name s)) 2)
        (string= (symbol-name s)
 		(format nil "~a!" ?)
 		:start1 0
@@ -122,7 +126,72 @@ from the only marked arg.  The function calls fun on all the args.
      (copy-to (gmap #'(lambda (y)
 			(pow x y)) (indgen 4)))
      (copy-to (gcmap (pow x @!y) (indgen 4))))))
-  
+
+
+(define-test gpmap
+  (assert-expands
+   '(MAP-N-GRIDS :SOURCES (LIST (LIST X NIL) (LIST Y NIL)) :COMBINATION-FUNCTION
+ (LAMBDA (X Y) (FUNCALL #'EXPT X Y)))
+   (gpmap (expt @!x @!y) x y))
+  (assert-expands
+   '(MAP-N-GRIDS :SOURCES (LIST (LIST (lseq 1 2 2) NIL) (LIST (lseq 1 3 2) NIL))
+     :COMBINATION-FUNCTION (LAMBDA (X Y) (FUNCALL #'EXPT X Y)))
+   (gpmap (expt @!x @!y) (lseq 1 2 2) (lseq 1 3 2)))
+  (assert-expands
+   '(MAP-N-GRIDS :SOURCES (LIST (LIST (lseq 1 2 2) NIL) (LIST (lseq 1 3 2) NIL))
+     :COMBINATION-FUNCTION (LAMBDA (X Y) (FUNCALL #'FOO X Y Z)))
+   (gpmap (foo @!x @!y z) (lseq 1 2 2) (lseq 1 3 2)))
+  (assert-expands
+   '(MAP-N-GRIDS :SOURCES (LIST (LIST (lseq 1 2 2) NIL) (LIST (lseq 1 3 2) NIL))
+     :COMBINATION-FUNCTION (LAMBDA (X Y) (FUNCALL #'FOO Z X Y)))
+   (gpmap (foo z @!x @!y) (lseq 1 2 2) (lseq 1 3 2)))
+  (assert-expands
+   '(MAP-N-GRIDS :SOURCES (LIST (LIST (lseq 1 2 2) NIL) (LIST (lseq 1 3 2) NIL))
+     :COMBINATION-FUNCTION (LAMBDA (X Y) (FUNCALL #'FOO X Z Y)))
+   (gpmap (foo @!x z @!y) (lseq 1 2 2) (lseq 1 3 2))))
+
+(defmacro gpmap ((fun &rest args) &rest vectors)
+  "Partial/Parallel map function over arguments marked with @! with
+values of `vectors' keeping all other args constant.
+
+The vectors can be explicit lisp or grid vectors
+
+A call to (gpmap (fun @!x y @!z) vx vz)
+
+expands into
+ (map-n-grids :sources (list (list vx nil) (list vz nil))
+              :combination-function #'(lambda (x z)
+                                           (fun x y z)
+
+"
+  (let (clean-args marked-args cleaned-arg-list)
+    (mapc #'(lambda (arg)
+	      (if (?!-symbol-p "@" arg)
+		  (let ((cleaned-sym
+			 (intern (subseq (symbol-name arg) 2))))
+		    (push cleaned-sym marked-args)
+		    (push cleaned-sym cleaned-arg-list))
+		  (progn
+		    (push arg clean-args)
+		    (push arg cleaned-arg-list))))
+	  args)
+    (let ((c-marked-args (length marked-args)))
+      (assert (= c-marked-args (length vectors))
+	      () "Mismatch between number of vector arguments ~a 
+and marked arguments ~a" vectors marked-args)
+      (let ((sources `(list ,@(mapcar (lambda (vector)
+					`(list ,vector
+					#|  ,(if (atom vector)
+					       vector
+					       (eval vector))|#
+					  nil))
+					vectors)))
+	    (combination-function
+	     `(lambda (,@(nreverse marked-args))
+		(funcall #',fun ,@(nreverse cleaned-arg-list)))))
+	`(map-n-grids :sources ,sources 
+		      :combination-function ,combination-function)))))
+
 
 ;;;; 2d mapping over either two vectors or a vector and a list
 ;;;;
@@ -454,3 +523,41 @@ arg1 must be a vector, while arg2 can be a vector or a list")
 
 |#
 
+
+(define-test grid-bind
+  (let ((grid (map-grid :destination-specification
+		(grid::make-specification 'array '(2 3) 'list)
+		:source #'(lambda (i j)
+			    (list i (* 2 j))))))
+    (print grid)
+    (grid-bind (a b) grid
+      (list a b))))
+
+(defmacro grid-bind ((&rest vars) grid &body body)
+  "Binding for grids whose each element is a list
+
+Bind each var in vars to its corresponding element in the grid element list
+
+Currently, the grid type (array or foreign-array) and the element type
+are determined by *array-type* and *float-type "
+  (alexandria:with-gensyms (dimensions affi walker tester specs)
+    (alexandria:once-only (grid)
+      `(let* ((,dimensions (dimensions ,grid))
+	      (,affi (grid::affi ,grid))
+	      (,specs (list (append (list ',*array-type*) ,dimensions)
+			    ',*float-type*)))
+	 ,@(loop for var in vars
+	      collect `(setf ,var (make-grid ,specs)))
+	 
+	 (multiple-value-bind (,walker ,tester) (affi:make-walker ,affi)
+	   (do* ((i (funcall ,walker) (funcall ,walker)))
+		((not i))
+	     (when i
+	       (let ((list (gref* ,grid i)))
+		 ,@(loop for var in vars
+		      collect `(setf (gref* ,var i) (pop list)))))))
+	 ,@body))))
+	 
+
+
+	     

@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 08:28:24 grid-mappers.lisp>
+;; Time-stamp: <2011-10-21 16:35:09 grid-mappers.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 
 (in-package :mv-grid)
 
-(export '(gmap gsmap reduce-rows reduce-columns))
+(export '(gmapc gmap gsmap reduce-rows reduce-columns))
 
 (defgeneric gmapc (function grid &rest grids)
   (:documentation
@@ -39,9 +39,9 @@ mapc")
 					      t))
     vector))
 
-(define-test gmap
+(define-test gmapc
     (assert-grid-equal
-     *0-1-2* (gmap #'identity *0-1-2*))
+     *0-1-2* (gmapc #'identity *0-1-2*))
     (assert-grid-equal
      *0-2-4*
      (gsmap #'+ *0-1-2* *0-1-2*)))

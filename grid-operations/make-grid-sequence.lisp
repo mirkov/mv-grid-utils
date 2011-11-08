@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 08:26:12 make-grid-sequence.lisp>
+;; Time-stamp: <2011-11-08 11:14:25 make-grid-sequence.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 ;; functions for creating grids filled with specific patterns
 (in-package :mv-grid)
 
-(export '(intgen indgen natgen findgen cindgen))
+(export '(intgen indgen natgen findgen cindgen lseq gseq))
 
 (defparameter *array-3-4-double-float*
   (grid::test-grid-double-float *array-type* '(3 4)))

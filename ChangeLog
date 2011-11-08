@@ -1,3 +1,27 @@
+2011-11-08  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-2d-mappers.lisp (gcmap): Added grid-bind
+
+	* grid-operations/make-grid-sequence.lisp (gseq): Added to export
+	list
+
+2011-08-22  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-io.lisp (read-grid): Set keyword `key'
+	default to be :read-from-string
+
+2011-08-21  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-io.lisp (read-grid): Fixed bug when column
+	count is known but row count is not (the last let form in the
+	function).  The `data' initialization was incorrect.  Fixed it and
+	made it more idiomatic.  Also fixed comments and documentation
+
+2011-08-11  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-manipulations.lisp: Recovered file from
+	ancient emacs crash.  Not sure if anything was changed.
+
 2011-03-06    <977315@WTEHDZYYN71>
 
 	* grid-operations/grid-io.lisp (read-grid): Converted read-grid

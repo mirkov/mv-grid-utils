@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-03-05 19:57:38 mv-grid-utils.asd>
+;; Time-stamp: <2011-10-17 17:34:15 mv-grid-utils.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -64,7 +64,3 @@
 
 
 
-
-;;;; Local variables: 
-;;;; change-log-default-name: "~/my-software-add-ons/my-lisp/mv-grid-utils/ChangeLog"
-;;;; End:
