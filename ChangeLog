@@ -1,3 +1,9 @@
+2011-11-10  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/make-grid-sequence.lisp (gseq, lseq): Added a
+	bit of code setting last grid element to `end'.  This eliminates
+	round-off-errors.
+
 2011-11-08  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* grid-operations/grid-2d-mappers.lisp (gcmap): Added grid-bind
