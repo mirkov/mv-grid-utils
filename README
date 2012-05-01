@@ -35,4 +35,4 @@ Development platforms:
  - CLISP on cygwin & windows 
  - SBCL on linux
 
-All unit tests pass on clisp and sbcl.
+

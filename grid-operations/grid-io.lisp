@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-14 17:13:21 grid-io.lisp>
+;; Time-stamp: <2011-08-25 22:26:21 grid-io.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -22,9 +22,8 @@
 (export '(read-grid))
 
 (defgeneric read-grid (dimensions stream file-format
-				  &optional eof-error-p
-				  eof-value
-				  &key type)
+				  &key eof-error-p
+				  eof-value type)
   (:documentation "read-grid returns a grid of values read from
 `stream'.
 
@@ -44,6 +43,9 @@ Arguments and Values:
  - type -- default type of value stored in grid.  Read values are coerced to
    `type'
 
+Some read methods introduce additional error checking and action.
+Consult their documentation for details.
+
 "))
 
 
@@ -55,14 +57,13 @@ Arguments and Values:
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 3) stream 't))))
+     (read-grid '(2 3) stream t :eof-error-p t))))
 
 
 
 (defmethod read-grid (dimensions (stream file-stream)
 		      (file-format (eql 't))
-		      &optional (eof-error-p t) eof-value
-		      &key (type 'double-float))
+		      &key (eof-error-p t) eof-value (type 'double-float))
   "Use `read' to read grid entries from stream.  The file need not be
 in rows/cols format.  Values are read sequentially, coerced to `type'
 and stored in grid.  Grid dimensions must be explicity specified.
@@ -80,45 +81,57 @@ Default type is 'double-float"
 		 :destination-specification `((,*array-type* ,@dimensions)
 					      ,type)))
 
+(defmacro with-csv-table ((stream) &body body)
+    `(with-input-from-string (,stream
+"1, 2, 3
+4, 5, 6")
+       ,@body))
+  
+  
 (define-test read-csv-grid
-  (with-open-file (stream
-		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
-		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
-		   :direction :input) 
+  (with-csv-table (stream)
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 3) 'csv stream t nil :type #+clisp t #+sbcl 'double-float)))
-  (with-open-file (stream
-		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
-		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
-		   :direction :input) 
+     (read-grid '(2 3) stream :csv :key :read-from-string :type 'double-float)))
+  (with-csv-table (stream)
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(nil 3) 'csv stream t nil :type #+clisp t #+sbcl 'double-float)))
-  (with-open-file (stream
-		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
-		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
-		   :direction :input) 
+     (read-grid '(2 nil) stream :csv :key :read-from-string :type 'double-float)))
+  (with-csv-table (stream)
     (assert-grid-equal 
      (grid::make-grid `((,*array-type*) ,*float-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 nil) 'csv stream t nil :type #+clisp t #+sbcl 'double-float)))
-  (with-open-file (stream
-		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
-		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.csv"
-		   :direction :input) 
-    (assert-grid-equal 
-     (grid::make-grid `((,*array-type*) ,*float-type*)
-		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(nil nil) 'csv stream t :eof :type #+clisp t #+sbcl 'double-float))))
+     (read-grid '(nil nil) stream :csv :key :read-from-string :type 'double-float))))
 
-(defmethod read-grid (dimensions (file-format (eql 'csv))
-		      stream
-		      &optional (eof-error-p t) eof-value
-		      &key (type t))
-  "Read a 2D grid from a csv file using `csv-parser:read-csv-line.
+
+(defmacro with-csv-incomplete-table ((stream) &body body)
+    `(with-input-from-string (,stream
+"1, 2, 3
+4, 5,")
+       ,@body))
+
+(define-test read-incomplete-csv-grid
+  (with-csv-incomplete-table (stream)
+    (assert-grid-equal 
+     (grid::make-grid `((,*array-type*) ,*float-type*)
+		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 -1d0)))
+     (read-grid '(nil nil) stream :csv :eof-error-p t :eof-value :eof
+		:key :read-from-string :type 'double-float
+		:eor-error-p nil :missing-field-value "-1d0"))))
+
+
+
+(defmethod read-grid (dimensions stream 
+		      (file-format (eql :csv))
+		      &key (eof-error-p t) eof-value
+		      (eor-error-p nil)
+		      (type t)
+		      (key :read-from-string)
+		      missing-field-value
+		      trace)
+  "Read a 2D grid from a csv file using `picard-csv:read-csv-line.
 
  - dimensions -two element list (rows cols)
  - rows -- number or nil.  If nil, determined from first row.
@@ -130,41 +143,59 @@ return depends on eof-error-p and eof-value.
 If cols are specified, and file does not contain enough cols,
 consequences are unspecified.
 
-Default data type is t
+eor-error-p and eor-value control behavior if a record has fewer than
+the required number of columns.
 
-"
-;;  (break)
-  (symbol-macrolet
-      ((next-record
-	;; record reading macro: csv line read returns a list of
-	;; strings - but I want numbers (mostly).  I read from those
-	;; strings, and coerce to requested type.
-	(multiple-value-bind (record cols)
-	    (csv-parser:read-csv-line stream)
-	  ;; macro must return both the list and the number of items
-	  ;; in it
-	  (values
-	   (mapcar #'(lambda (arg)
-		       (coerce (read-from-string arg)
-			       type))
-		   record)
-	   cols))))
-    (let ((record nil))
-      (destructuring-bind (rows cols) dimensions
+If eor-error-p is t (default), an error is signaled.  If it is nil,
+`eor-value' is stored in that cell.  If eor-value is a function, the
+function is called on the column index and the row index of the
+missing cell, and its return value is stored.
+
+With `trace' non-nil, the row number and record are echoed on standard
+output
+
+Return values:
+
+This method uses `next-table-record' to read the next line in the file,
+process and return its contents.  It passes the `key' and `type'
+arguments to `next-table-record'.  See the documentation on
+`next-table-record' on how to use `key' and `type' to control the
+parsing of csv records.
+
+Note: The routine uses an internal function `next-record'.  It uses
+`next-table-record' to read the next record and store it in a local
+value.  Do not depend on `next-record' to return the next record.
+Instead, execute it, and access the new record from `record'"
+
+  (destructuring-bind (rows cols) dimensions
+    (let ((record nil)
+	  (row 0))
+      (labels 
+	  ((next-record ()
+	     ;; NOTE: next-record does not return the next record.
+	     ;; Instead it stores it in `record'.
+	     (multiple-value-setq (record cols)
+	       (next-table-record stream key row
+				  :eor-error-p eor-error-p
+				  :eof-error-p nil :eof-value :eof
+				  :missing-field-value missing-field-value
+				  :type type
+				  :length cols))
+	     (when trace
+	       (format t "~a: ~a~%" row record))
+	     (incf row)))
 	(unless cols
-	  (multiple-value-setq (record cols)
-	    next-record))
+	  (next-record))
 	(if rows
 	    (map-grid
 	     :source #'(lambda (&rest args)
 			 (declare (ignore args))
-			 (or record
-			     (setf record next-record))
+			 (or record (next-record))
 			 (when (null record)
-			      (if eof-error-p
-				  (error #+clisp 'SYSTEM::SIMPLE-END-OF-FILE
-					 "End of file")
-				  (return-from read-grid eof-value)))
+			   (if eof-error-p
+			       (error #+clisp 'SYSTEM::SIMPLE-END-OF-FILE
+				      "End of file")
+			       (return-from read-grid eof-value)))
 			 (pop record))
 	     :source-dims `(,rows ,cols)
 	     :destination-specification `((,*array-type* ,rows ,cols)
@@ -173,11 +204,17 @@ Default data type is t
 		   ;; Here record is a list (a b c ...).  In order for
 		   ;; push to work, I need to embed it in another
 		   ;; list: ((a b c ...))
-		   (if record (list record)
-		       record)))
-	      (loop for fields = next-record
-		 while fields
-		 do (push fields data))
+		   (list (or record
+			     (progn
+			       (next-record)
+			       record)))))
+	      (loop 
+		 do (next-record)
+	      	 until (eq record :eof)
+	      	 do (push record data))
 	      (make-grid `((,*array-type* nil) ,type)
 			 :initial-contents (nreverse data))))))))
+
+
+
 

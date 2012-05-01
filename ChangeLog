@@ -1,3 +1,79 @@
+2012-02-01  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-mappers.lisp (gmapc): for vector method,
+	fixed call to map-n-grids by adding affi information, and making
+	sure all affis are congruent. 
+	(gmapc): passes test
+
+2011-11-10  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/make-grid-sequence.lisp (gseq, lseq): Added a
+	bit of code setting last grid element to `end'.  This eliminates
+	round-off-errors.
+
+2011-11-08  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-2d-mappers.lisp (gcmap): Added grid-bind
+	(grid-bind): Fixed small bug.  Did not initialize the vars prior
+	to doing `setf's on them
+
+	* grid-operations/make-grid-sequence.lisp (gseq): Added to export
+	list
+
+2011-08-22  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-io.lisp (read-grid): Set keyword `key'
+	default to be :read-from-string
+
+2011-08-21  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-io.lisp (read-grid): Fixed bug when column
+	count is known but row count is not (the last let form in the
+	function).  The `data' initialization was incorrect.  Fixed it and
+	made it more idiomatic.  Also fixed comments and documentation
+
+2011-08-11  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-manipulations.lisp: Recovered file from
+	ancient emacs crash.  Not sure if anything was changed.
+
+2011-03-06    <977315@WTEHDZYYN71>
+
+	* grid-operations/grid-io.lisp (read-grid): Converted read-grid
+	to use read-row-table.  Tested.
+	(read-grid): Modified to use end-of-file signalization from
+	read-table-line
+
+2011-03-05    <977315@WTEHDZYYN71>
+
+	* grid-operations/grid-2d-mappers.lisp (gcmap): Renamed from
+	grid-curry.  Added facilities for 2d mapping (gmap2d and gmap-vl)
+
+2011-02-26    <977315@WTEHDZYYN71>
+
+	* grid-operations/grid-io.lisp (read-grid): When reading a csv
+	list, added provision to check for number of fields in record, and
+	to either signal an error, or fill with defaults.
+	(record-fill): Added function to fill records shorter than the
+	required csv record lenght.
+
+	* mv-grid-utils.asd (mv-grid-utils): Using alexandria,
+	foreign-array on all platforms, and picard-csv
+
+	* grid-operations/grid-io.lisp (read-grid): Changed optional
+	arguments to keyword arguments.  Adapted all unit-tests.
+	(read-grid): Fixed error in argument sequence
+	(read-grid): Changed csv reader to picard-csv.  This is still the
+	same old reader I used before, but I renamed it to distinguish it
+	from the fare-csv system available via quicklisp
+	(next-csv-record): New function to process csv record fields.
+	(read-grid): Modified to use `next-csv-record'
+
+2011-02-25    <977315@WTEHDZYYN71>
+
+	* grid-operations/grid-io.lisp (read-grid): Changed csv format
+	specifier to :csv
+
 2011-02-15  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
 
 	* grid-operations/grid-manipulations.lisp (grid-coerce): Added new

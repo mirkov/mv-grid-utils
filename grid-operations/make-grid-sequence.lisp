@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-12 08:26:12 make-grid-sequence.lisp>
+;; Time-stamp: <2011-11-10 10:58:01 make-grid-sequence.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 ;; functions for creating grids filled with specific patterns
 (in-package :mv-grid)
 
-(export '(intgen indgen natgen findgen cindgen))
+(export '(intgen indgen natgen findgen cindgen lseq gseq))
 
 (defparameter *array-3-4-double-float*
   (grid::test-grid-double-float *array-type* '(3 4)))
@@ -121,11 +121,14 @@ The floating type is either `single' or `double' (default), determined by `type'
   (declare (number begin end))
   (let ((scale (/ (- end begin)
 		  (1- count))))
-    (map-grid :source #'(lambda (i)
-			  (+ (*  i scale)
-			     begin))
-	      :destination-specification
-	      `((,*array-type* ,count) ,*float-type*))))
+    (let ((grid (map-grid :source #'(lambda (i)
+				      (+ (*  i scale)
+					 begin))
+			  :destination-specification
+			  `((,*array-type* ,count) ,*float-type*))))
+      (setf (gref grid (- count 1)) end)
+      grid)))
+	
 
 
 (define-test gseq
@@ -144,9 +147,11 @@ The floating type is either `single' or `double' (default), determined by `type'
   (declare (number begin end))
   (let ((rat (expt (/ end begin) (/ 1. (1- count))))
 	(value begin))
-    (map-grid :source #'(lambda (i)
-			  (declare (ignore i))
-			  (prog1 value
-			    (setf value (* value rat))))
-	      :destination-specification
-	      `((,*array-type* ,count) ,*float-type*))))
+    (let ((grid (map-grid :source #'(lambda (i)
+				      (declare (ignore i))
+				      (prog1 value
+					(setf value (* value rat))))
+			  :destination-specification
+			  `((,*array-type* ,count) ,*float-type*))))
+      (setf (gref grid (- count 1)) end)
+      grid)))

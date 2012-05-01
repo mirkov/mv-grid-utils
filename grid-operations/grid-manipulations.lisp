@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-10 07:19:18 grid-manipulations.lisp>
+;; Time-stamp: <2011-08-11 13:55:24 grid-manipulations.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
