@@ -1,3 +1,10 @@
+2012-02-01  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-mappers.lisp (gmapc): for vector method,
+	fixed call to map-n-grids by adding affi information, and making
+	sure all affis are congruent. 
+	(gmapc): passes test
+
 2011-11-10  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* grid-operations/make-grid-sequence.lisp (gseq, lseq): Added a

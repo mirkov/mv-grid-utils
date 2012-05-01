@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-02-15 11:15:50 grid-iterating-functions.lisp>
+;; Time-stamp: <2011-11-13 19:43:10 grid-iterating-functions.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -41,6 +41,8 @@
 ;; All operations are non-destructive -- the old grid is never
 ;; modified.
 ;;
+;; There are additional functions such as reverse-vector
+;;
 ;; 
 
 (in-package :mv-grid)
@@ -48,7 +50,8 @@
 (export '(grid-position position-nearest positions
 	  remove-row remove-row-if
 	  remove-column remove-column-if
-	  grid-substitute))
+	  grid-substitute
+	  reverse-vector))
 
 
 (defun test-grid-integer
@@ -547,3 +550,17 @@ copy is returned"
   nil)
 
 
+(defun reverse-vector (vector)
+  "Create a new vector, reversing the order of elements"
+  (assert (null (dim1 vector)) ()
+	  "Argument must be a vector")
+  (let* ((len (dim0 vector))
+	 (affi (affi:make-affi (list len) (- len 1))))
+    (setf (slot-value affi 'affi::coeff) #(-1))
+    (map-grid :source vector
+	      :destination-affi affi)))
+
+(define-test reverse-vector
+  (assert-grid-equal
+   #(4 3 2 1 0)
+   (reverse-vector (intgen 5))))
