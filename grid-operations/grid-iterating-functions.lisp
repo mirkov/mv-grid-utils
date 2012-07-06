@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-07-05 22:07:53 grid-iterating-functions.lisp>
+;; Time-stamp: <2012-07-06 11:35:44 grid-iterating-functions.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -20,28 +20,6 @@
 ;; Grid iterating functions modeled after `count', `find', `position',
 ;; `remove', `substitute' (PCL, Table 11.1) and their higher order
 ;; variants -if and -if-not.
-;;
-;; +----------+------+-----+-------+
-;; |          |Simple| -if | if-not|
-;; +----------+------+-----+-------+
-;; |count     |      |     |       |
-;; +----------+------+-----+-------+
-;; |find      |  M   |  M  |       |
-;; +----------+------+-----+-------+
-;; |position  |  V   |  V  |       |
-;; +----------+------+-----+-------+
-;; |positions |  V   |     |       |
-;; +----------+------+-----+-------+
-;; |remove    |  M   | M   |       |
-;; +----------+------+-----+-------+
-;; |substitute|  M/V |     |       |
-;; +----------+------+-----+-------+
-;; 
-;;
-;; All operations are non-destructive -- the old grid is never
-;; modified.
-;;
-;; There are additional functions such as reverse-vector
 ;;
 ;; 
 
