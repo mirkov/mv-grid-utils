@@ -1,3 +1,12 @@
+2012-07-05  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* README.org: created
+
+2012-07-03  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-manipulations.lisp (reform): Rename matrify
+	into reform (IDL has a reform function)
+
 2012-02-01  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* grid-operations/grid-mappers.lisp (gmapc): for vector method,

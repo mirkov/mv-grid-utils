@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-03-06 16:30:57 mv-grid-package-def.lisp>
+;; Time-stamp: <2012-07-03 06:58:11 mv-grid-package-def.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defpackage :mv-grid
-  (:use :cl :lisp-unit :grid :csv-parser);; :affi)
+  (:use :cl :lisp-unit :grid :csv-parser :symbol-name-queries);; :affi)
   (:shadow :lisp-unit :norm)
   (:import-from :alexandria :with-input-from-file)
   (:documentation "Package of utilities for generating grids,

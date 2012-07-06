@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-11-13 19:43:10 grid-iterating-functions.lisp>
+;; Time-stamp: <2012-07-05 22:07:53 grid-iterating-functions.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -177,6 +177,7 @@ distance between them"
 
 (defun matching-indices ()
   (error "function `matching-indices' is retired.  Use `positions'"))
+
 (defgeneric positions (grid predicate)
   (:documentation "Return `grid's indices that satisfy the predicate.
   Supports grid's vectors and matrices, and cl's simple-vectors of
@@ -199,7 +200,7 @@ distance between them"
 
 (defun match-vec-element (vector predicate)
   (declare (ignore vector predicate))
-  (error "Obsoletet function - Use `position-element'"))
+  (error "Obsolete function - Use `position-element'"))
 
 
 (define-test position-element

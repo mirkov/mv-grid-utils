@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-10-17 17:34:15 mv-grid-utils.asd>
+;; Time-stamp: <2012-07-05 21:25:31 mv-grid-utils.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -25,19 +25,20 @@
   :components
   ((:module "package-def"
 	    :pathname #P"./"
-
+	    :serial t
 	    :components ((:file "mv-grid-package-def")
-			 (:file "grid-utilities-setup"
-				:depends-on ("mv-grid-package-def"))))
+			 (:file "grid-utilities-setup")))
    (:module "grid-operations"
 	   ;; :pathname #P"./"
 	    :depends-on ("package-def")
 	    :components ((:file "make-grid-sequence")
 			 (:file "grid-iterating-functions")
 			 (:file "grid-manipulations")
-			 (:file "grid-mappers")
-			 (:file "grid-io")
-			 (:file "grid-2d-mappers")))
+			 (:file "vector-mappings")
+			 (:file "matrix-row-or-col-mappings")
+			 (:file "mixed-arg-vector-mappings")
+			 (:file "mixed-arg-2vector-ortho-mappings")
+			 (:file "grid-io")))
    (:module "cl-fun-mapping"
 	   ;; :pathname #P"./"
 	    :depends-on ("package-def")
@@ -60,7 +61,8 @@
 	       :grid
 	       :iterate
 	       :lisp-unit
-	       :picard-csv))
+	       :picard-csv
+	       :symbol-name-queries))
 
 
 
