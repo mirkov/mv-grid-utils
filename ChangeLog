@@ -1,3 +1,15 @@
+2012-07-02  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-mappers.lisp (gmapc): Added method
+	specializing on vector-double-float.  The contents are identical
+	to that of one specializing on vector.  I evidently need to clean
+	this up.
+
+2012-06-06  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-io.lisp (read-grid): For file format 't
+	added assert statements to check validity of dimensions argument
+
 2012-02-01  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* grid-operations/grid-mappers.lisp (gmapc): for vector method,

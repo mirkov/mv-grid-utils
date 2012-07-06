@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-08-25 22:26:21 grid-io.lisp>
+;; Time-stamp: <2012-06-06 13:56:26 grid-io.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -69,6 +69,11 @@ in rows/cols format.  Values are read sequentially, coerced to `type'
 and stored in grid.  Grid dimensions must be explicity specified.
 
 Default type is 'double-float"
+  (assert (= 2 (length dimensions)) ()
+	  "DIMENSIONS: ~a must be alist of length 2" dimensions)
+  (assert (and (first dimensions)
+	       (second dimensions)) ()
+	       "Elements of DIMENSIONS: ~a must be non-nil" dimensions)
   (map-grid :source #'(lambda (&rest args)
 			     (declare (ignore args))
 			     (let ((value 

@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-02-29 20:36:45 grid-mappers.lisp>
+;; Time-stamp: <2012-07-02 17:39:00 grid-mappers.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -24,11 +24,28 @@
 (defgeneric gmapc (function grid &rest more-grids)
   (:documentation
    "Apply function to successive sets of arguments in which one argument is obtained from each vector.
+
   Return the first grid, unmodified.
 
 This map is used for the function's side effects.  It is modeled after
 mapc")
   (:method ((function function) (vector #+clisp vector #+sbcl mvector)
+	    &rest more-vectors)
+    (let* ((vectors (cons vector more-vectors))
+	   (affis (mapcar #'grid::affi vectors))
+	   (index 2))
+      (dolist (this-affi (rest affis))
+	(unless (affi:check-conformability (first affis) this-affi)
+	  (error "~s~:*~[nil~;st~;nd~;rd~:;th~] vectors's affi conflicts with the first vector's affi" index)))
+      (map-n-grids :sources (mapcar #'list vectors affis)
+		   :combination-function #'(lambda (&rest args)
+					     (apply function args)
+					     nil)
+		   :destination-specification `((array ,@(dimensions vector))
+						t))
+      vector))
+  (:method ((function function) (vector #+clisp vector-double-float
+					#+sbcl mvector)
 	    &rest more-vectors)
     (let* ((vectors (cons vector more-vectors))
 	   (affis (mapcar #'grid::affi vectors))
@@ -87,8 +104,6 @@ the :combination-function keyword"
 			       (apply function args))
      :destination-specification `((,*array-type* ,@(dimensions (first grids)))
 						 ,*float-type*))))
-
-
 
 
 (define-test reduce-rows/cols
