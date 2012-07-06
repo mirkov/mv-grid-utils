@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-07-02 17:39:00 grid-mappers.lisp>
+;; Time-stamp: <2012-07-06 14:10:48 vector-mappings.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -19,13 +19,26 @@
 
 (in-package :mv-grid)
 
-(export '(gmapc gmap gsmap reduce-rows reduce-columns reduce-vector))
+(export '(gmapc gmap gsmap reduce-rows reduce-columns reduce-vector
+	  map-rows))
+
+
+(defun gmap (function grid)
+  "Element-wise map FUNCTION over GRID, returning a grid
+
+*array-type* and float-type* determine the result type
+
+gmap specializes map-grid to use only the :element-function
+keyword"
+  (map-grid
+   :source grid
+   :element-function function))
 
 (defgeneric gmapc (function grid &rest more-grids)
   (:documentation
-   "Apply function to successive sets of arguments in which one argument is obtained from each vector.
-
-  Return the first grid, unmodified.
+   "Apply function to successive sets of arguments in which one
+argument is obtained from each vector.  Return the first grid,
+unmodified.
 
 This map is used for the function's side effects.  It is modeled after
 mapc")
@@ -73,18 +86,6 @@ mapc")
      (gsmap #'+ *0-1-2* *0-1-2*)))
 
 
-(defun gmap (function grid)
-  "Element-wise Map `function' over `grids' *array-type* and
-*float-type* determine the result type
-
-gmap specializes map-grid to use only the :element-function
-keyword"
-  (map-grid
-   :source grid
-   :element-function function))
-;;   :destination-specification `((,*array-type* ,@(dimensions grid))
-;;						 ,*float-type*))
-
 
 (defun gsmap (function &rest grids)
   "Element-wise Map `function' over `grids'
@@ -106,64 +107,3 @@ the :combination-function keyword"
 						 ,*float-type*))))
 
 
-(define-test reduce-rows/cols
-  (assert-grid-equal 
-   (grid::make-grid `((,*array-type*) ,*float-type*)
-		    :initial-contents '(30d0 33d0 36d0 39d0))
-   (reduce-columns *array-3-4-double-float*))
-  (assert-grid-equal 
-   (grid::make-grid `((,*array-type*) ,*float-type*)
-		    :initial-contents '((6d0 46d0 86d0)))
-   (reduce-rows *array-3-4-double-float*)))
-
-
-(defun reduce-rows (matrix &optional (func #'+))
-  "Return a column vector with each element a result reducing that row
-using `func' (default #'+)"
-  (make-grid `((,*array-type* 1 ,(first (dimensions matrix)))
-		    double-float)
-	     :initial-contents
-	     ;; In order to create a column array, I have to return a
-	     ;; nested list.  This could be a grid bug or a feature.
-	     (list
-	      (iter:iter
-		(iter:for R :matrix-row matrix)
-		(iter:collect
-		    (iter:iter
-		      (iter:for E :vector-element R)
-		      (iter:reducing E by func initial-value 0d0)))))))
-
-
-(defun reduce-columns (matrix &optional (func #'+))
-  "Return a row vector with each element a result of reducing the
-column using `func' (default #'+)"
-  (make-grid `((,*array-type* ,(second (dimensions matrix)))
-		    double-float)
-	     :initial-contents
-	     (iter:iter
-	       (iter:for C :matrix-column matrix)
-	       (iter:collect
-		   (iter:iter
-		     (iter:for E :vector-element C)
-		     (iter:reducing E by func initial-value 0d0))))))
-
-(define-test reduce-vector
-  (assert-equal 138d0
-   (reduce-vector
-    #'+
-    (grid::make-grid `((,*array-type*) ,*float-type*)
-		     :initial-contents '(6d0 46d0 86d0))))
-  (assert-equal 148d0
-   (reduce-vector
-    #'+
-    (grid::make-grid `((,*array-type*) ,*float-type*)
-		     :initial-contents '(6d0 46d0 86d0))
-    :initial-value 10d0)))
-
-(defun reduce-vector (function vector &key (initial-value 0d0))
-  "Return a vector using `function'.
-
-- INITIAL-VALUE -- is it applied before the sequence, or at the end"
-  (iter:iter
-    (iter:for C :vector-element vector)
-    (iter:reducing C by function :initial-value initial-value)))

@@ -1,0 +1,247 @@
+#+title: ~grid-utils~ package
+
+* Introduction and Background
+
+  This package is built on top of Liam Healy's GSD package. The
+  utilities in this package create grids, manipulate them, and map
+  functions over them.  Many of these functions are a thin veneer over
+  the functionality provided by ~GSD~.
+
+  Many of these utilities have counterparts in languages such as
+  Matlab, IDL, and others.  Since I am familiar with IDL, some of the
+  names come from that language.  However, I do not strive to fully
+  duplicate IDL/Matlab vector processing capabilities (see discussion
+  [[id:o2fjm4e1msf0][here]]).  Instead I try to apply existing CL's sequence syntax to
+  grids.
+
+  The syntax, user interface and function names in this package need
+  to be cleaned up.
+
+  Several special variables control the behavior of the routines
+  - ~*array-type*~ :: determines the type of grids, native CL,
+                      ~array~, or ~foreign-array~
+  - *float-type* :: determines the float type stored in grids,
+                    ~single-float~ or ~double-float~
+  - ~*integer-type*~ :: determines the integer type stored in grids,
+                    ~(unsigned-byte 32)~
+  - ~*complex-type*~ :: determines the type of float that makes up
+       complex variables, ~complex~ or ~(complex double-float)~
+       
+       
+  As with ~GSD~, loading the ~foreign-array~ package prior to loading
+  ~grid-utils~ enables the use of foreign arrays.
+  
+* Functionality overview
+
+  This section is meant to provide a functionality overview (which can
+  be improved), not a detailed documentation.  For the documentation,
+  consult the source code and the unit tests associated with each
+  function (which can be improved).
+
+** Mapping with respect to CL functions
+
+   There is overlap between some of the functions, and that needs to
+   be cleaned up.
+
+*** Iterating functions
+ | CL-name    | Our name         | Simple | -if | if-not |
+ |------------+------------------+--------+-----+--------|
+ | count      | grid-count       |        |     |        |
+ | find       | find-row         | M      | M   |        |
+ |            | find-col         | M      | M   |        |
+ | position   | grid-position    | V      | V   |        |
+ |            | grid-positions   | V      | V/M |        |
+ |            | position-nearest | V      |     |        |
+ |            | positions        | V      |     |        |
+ |            | position-element | V      |     |        |
+ | remove     | remove-row       | M      | M   |        |
+ |            | remove-col       | M      | M   |        |
+ | substitute | grid-substitute  | M/V    |     |        |
+
+*** Whole grid manipulations
+  
+ | reverse     | reverse-vector | V |   |   |
+ | copy-seq    |                |   |   |   |
+ | concatenate |                |   |   |   |
+
+*** Sorting and merging
+ | sort        |                |   |   |   |
+ | merge       |                |   |   |   |
+
+*** Grid manipulations
+ | subseq      |                |   |   |   |
+ 
+*** Grid predicates
+ | every    |   |   |   |   |
+ | some     |   |   |   |   |
+ | notany   |   |   |   |   |
+ | notevery |   |   |   |   |
+
+    
+
+*** Mapping functions
+ | mapcar | gmap  |   |   |   |
+ |        | gsmap |   |   |   |
+ | mapc   | gmapc |   |   |   |
+
+ All operations are non-destructive -- the old grid is never
+ modified.
+ There are additional functions such as reverse-vector
+
+
+   
+** Sequence generation
+
+*** Index generation functions
+    The following functions generate a sequence of integers
+    | Name      | Sequence type             | Starting integer |
+    |-----------+---------------------------+------------------|
+    | ~intgen~  | signed integer sequence   |                0 |
+    | ~indgen~  | unsigned integer sequence |                0 |
+    | ~natgen~  | natural number sequence   |                1 |
+    | ~findgen~ | ~*float-type*~            |                0 |
+    | ~cindgen~ | ~*complex-type*~          |                0 |
+
+*** Sequence generation functions
+    | Name   | Type               |
+    |--------+--------------------|
+    | ~lseq~ | Linear sequence    |
+    | ~gseq~ | Geometric sequence |
+
+** Grid iterating functions
+
+   These are functions that iterate over a grid, and return a result
+   based on grid contents, or modify a grid element.  These are mostly
+   inspired by CL's sequence functions
+
+   Some of these duplicate functionality and may need to be cleaned
+   - ~grid-position~, ~grid-position-if~
+   - ~grid-positions~
+   - ~position-nearest~
+   - ~positions~ is similar to ~grid-position-if~ but does not accept
+     the ~key~ argument
+   - ~position-element~
+   - ~grid-substitute~
+   - ~remove-row~, ~remove-row-if~
+   - ~remove-col~, ~remove-col-if~
+   - ~find-row~, ~find-row-if~
+   - ~find-col~, ~find-col-if~
+   - ~reverse-vector~
+
+*** Grid manipulations
+    - ~reform~ return a matrix filled with vector elements
+    - ~grid-coerce~ return a new grid with elements coerced to new type
+    - ~-grid-bind~ is a macro that binds elements of a grid to
+      variables
+   
+** Mapping over grids
+
+   There are two types of mapping.  In mappings of the first type, all
+   arguments are must be vectors, and the result is built by applying
+   the function to each element in turn.
+
+   Mappings of the second type are macros that allow for mappings over
+   a mixture of vectors and scalars, or construct a matrix from a
+   mapping over two vectors.
+   
+*** Vector mappings
+    The following functions map over one or more vectors
+    - ~gmap~ maps a function over a single grid, returning a new grid
+    - ~gsmap~ is like ~gmap~, except that operates on one or more
+      vectors.  It should really be called ~gmap~
+    - ~gmapc~ maps a function over one or more vectors, returning the
+      first vector.  ~gmapc~ is used for function's side-effects.
+
+*** Mixed argument vector mappings
+   The following macros are used to  map over multiple arguments, one
+   or two of which are vectors.  The general form is of the form
+   #+BEGIN_SRC lisp
+(xymap (fun arg1 @!arg2 arg3) vecarg)
+   #+END_SRC
+   In other words, the macro ~xymap~ has as first argument the actual
+   function to be called with the full argument list.  The vector
+   argument(s) is/are marked with a `@.' like pattern.  The rest of
+   ~xymap~ arguments is one or more vectors, that will be used to map
+   over the function.
+
+   Here is an example with function ~gpmap~
+   #+BEGIN_SRC lisp
+   (gpmap (foo x @1y @2z) vec1 vec2)
+   #+END_SRC
+   This macro will apply ~foo~ on ~x~ and successive elements of
+   ~vec1~ and ~vec2~, accumulating the results in a vector of
+   dimensions specified by ~vec1~
+
+   - ~gcmap~ can map over only one vector
+   - ~gpmap~ will map over one or more vectors.  I should consider
+     removing ~gcmap~ in favor of ~gpmap~.
+
+*** Mixed argument orthogonal vector mappings
+    
+**** ~gmap2d~
+     This function is similar to ~gpmap~, except that it returns a
+     matrix where element in position (i j) is from i-th element of
+     vector 1 and j-th element of vector 2.
+*** Mapping over matrix rows or columns
+    - ~reduce-vector~ reduces a vector
+    - ~reduce-columns~ loops over columns, reducing each.  The result
+      is a vector
+    - ~reduce-rows~ loops over rows, reducing each.  The result is a vector
+    - ~map-rows~  maps a function over matrix rows, returning the
+      result as a vector
+
+** Grid input/output
+   ~read-grid~ reads a grid from stream.  It accepts generic or cvs
+   files - see documentation
+
+* Coding Notes
+** Design goals
+
+   The calling and naming convention should follow CL, and not
+   languages like IDL, Matlab, R, etc.
+
+** Status
+
+   The code is still in early development.  Some stuff is missing.
+   The calling and naming of functions is subject to change.
+
+** Testing
+
+   ~lisp-unit~ is used for testing and usage documentation.
+
+** Development platforms
+
+   I have developed this library on the following two platforms:
+   - CLISP on cygwin & windows 
+   - SBCL on linux
+     
+     
+   The development and testing is not always in sync, and development
+   on one platform may introduce bugs on the other that do eventually
+   get fixed.
+
+* On evaluating vectorized expressions
+  :PROPERTIES:
+  :ID:       o2fjm4e1msf0
+  :END:
+
+  Interpreted languages, such as IDL and Matlab improve loop
+  performance by allowing for vectorized code, such as ~cos(va+b)~
+  where ~va~ is a vector.  Evaluation of this expression will require
+  a construction of a temporary vector for storing ~va+b~.  In case of
+  large arrays and complex expressions, this leads to allocation and
+  deallocation of large chunks of memory.
+
+  In addition, the languages provide for creation of masks by applying
+  a test function to an array.  These masks can then be used to apply
+  an expression for only a sub-set of array elements.  This can lead
+  to different code being written for scalar arguments and for array
+  arguments.
+
+  I decided to avoid such usage.  One of the reasons for using CL is
+  its capability to compile to machine code (as is the case of SBCL on
+  Linux).
+
+  All of the mapping macros define the result variable, and then
+  construct and apply loops over the grids, using ~GSD~'s built-in
+  facilities.  I suspect that the looping can be improved.
