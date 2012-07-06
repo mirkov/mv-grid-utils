@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-07-03 07:28:51 mixed-arg-vector-mappings.lisp>
+;; Time-stamp: <2012-07-06 14:30:09 mixed-arg-vector-mappings.lisp>
 ;; 
 ;; Copyright 2012 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -158,7 +158,8 @@ expands into
 		 vector-args
 		 cleaned-arg-list)
     (mapc #'(lambda (arg)
-	      (if (?@-symbol-p arg)
+	      (if (or (@0-symbol-p arg)
+		      (@1-symbol-p arg))
 		  (let ((cleaned-sym
 			 (intern (subseq (symbol-name arg) 2))))
 		    (push cleaned-sym vector-args)

@@ -1,3 +1,8 @@
+2012-07-06  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/mixed-arg-vector-mappings.lisp (gpmap): Replaced
+	erroneous call to ?!-symbol-p with @0,1-symbol-p test structure.
+
 2012-07-02  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* grid-operations/grid-mappers.lisp (gmapc): Added method

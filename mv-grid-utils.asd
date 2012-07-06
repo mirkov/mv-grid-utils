@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-07-05 21:25:31 mv-grid-utils.asd>
+;; Time-stamp: <2012-07-06 14:19:33 mv-grid-utils.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -29,7 +29,7 @@
 	    :components ((:file "mv-grid-package-def")
 			 (:file "grid-utilities-setup")))
    (:module "grid-operations"
-	   ;; :pathname #P"./"
+	    ;; :pathname #P"./"
 	    :depends-on ("package-def")
 	    :components ((:file "make-grid-sequence")
 			 (:file "grid-iterating-functions")
@@ -40,7 +40,7 @@
 			 (:file "mixed-arg-2vector-ortho-mappings")
 			 (:file "grid-io")))
    (:module "cl-fun-mapping"
-	   ;; :pathname #P"./"
+	    ;; :pathname #P"./"
 	    :depends-on ("package-def")
 	    :components ((:file "clfm-declarations")
 			 (:file "clfm-unit-tests"
