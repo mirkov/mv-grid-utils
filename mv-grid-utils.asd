@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-07-06 14:19:33 mv-grid-utils.asd>
+;; Time-stamp: <2012-10-10 17:13:11EDT mv-grid-utils.asd>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -28,7 +28,13 @@
 	    :serial t
 	    :components ((:file "mv-grid-package-def")
 			 (:file "grid-utilities-setup")))
-   (:module "grid-operations"
+   (:module "grid-io"
+	    :pathname #P"./grid-operations/"
+	    :serial t
+	    :depends-on ("package-def")
+	    :components ((:file "grid-io")
+			 (:file "grid-utilities-unit-tests")))
+   #+prune(:module "grid-operations"
 	    ;; :pathname #P"./"
 	    :depends-on ("package-def")
 	    :components ((:file "make-grid-sequence")
@@ -39,7 +45,7 @@
 			 (:file "mixed-arg-vector-mappings")
 			 (:file "mixed-arg-2vector-ortho-mappings")
 			 (:file "grid-io")))
-   (:module "cl-fun-mapping"
+   #+prune(:module "cl-fun-mapping"
 	    ;; :pathname #P"./"
 	    :depends-on ("package-def")
 	    :components ((:file "clfm-declarations")
@@ -53,16 +59,16 @@
 			 (:file "make-all-clfm"
 				:depends-on ("clfm-declarations"
 					     "clfm-generation-utilities")))))
-  :depends-on (:cl-utilities
-	       :anaphora
-	       :alexandria
-	       :split-sequence
-	       :foreign-array
-	       :grid
-	       :iterate
-	       :lisp-unit
-	       :picard-csv
-	       :symbol-name-queries))
+  :depends-on (#+needed? :cl-utilities
+	       #+needed? :anaphora
+	       #+needed? :alexandria
+	       #+needed? :split-sequence
+	       #+part-of-antik "foreign-array"
+	       "antik"
+	       #+needed? :iterate
+	       "lisp-unit"
+	       "picard-csv"
+	       #+needed? :symbol-name-queries))
 
 
 

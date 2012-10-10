@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-06-06 13:56:26 grid-io.lisp>
+;; Time-stamp: <2012-10-10 16:09:09EDT grid-io.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -34,7 +34,7 @@ Arguments and Values:
    dynamically.  These dimensions are denoted by nil's.
    If the file contents do not conform to the dimensions
    specification, the consequences are unspecified.
- - file-format -- symbol (t or some other)
+ - file-format -- symbol (t or csv)
  - stream -- input stream 
  - eof-error-p -- boolean. Default is true.  Throw error if end of
    file before the whole grid is read.  If nil, return eof-value
@@ -55,7 +55,7 @@ Consult their documentation for details.
 		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.txt"
 		   :direction :input) 
     (assert-grid-equal 
-     (grid::make-grid `((,*array-type*) ,*float-type*)
+     (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
      (read-grid '(2 3) stream t :eof-error-p t))))
 
@@ -83,7 +83,7 @@ Default type is 'double-float"
 				 (return-from read-grid value))
 			       (coerce value type)))
 		 :source-dims dimensions
-		 :destination-specification `((,*array-type* ,@dimensions)
+		 :destination-specification `((,*default-grid-type* ,@dimensions)
 					      ,type)))
 
 (defmacro with-csv-table ((stream) &body body)
@@ -96,17 +96,17 @@ Default type is 'double-float"
 (define-test read-csv-grid
   (with-csv-table (stream)
     (assert-grid-equal 
-     (grid::make-grid `((,*array-type*) ,*float-type*)
+     (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
      (read-grid '(2 3) stream :csv :key :read-from-string :type 'double-float)))
   (with-csv-table (stream)
     (assert-grid-equal 
-     (grid::make-grid `((,*array-type*) ,*float-type*)
+     (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
      (read-grid '(2 nil) stream :csv :key :read-from-string :type 'double-float)))
   (with-csv-table (stream)
     (assert-grid-equal 
-     (grid::make-grid `((,*array-type*) ,*float-type*)
+     (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
      (read-grid '(nil nil) stream :csv :key :read-from-string :type 'double-float))))
 
@@ -120,7 +120,7 @@ Default type is 'double-float"
 (define-test read-incomplete-csv-grid
   (with-csv-incomplete-table (stream)
     (assert-grid-equal 
-     (grid::make-grid `((,*array-type*) ,*float-type*)
+     (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 -1d0)))
      (read-grid '(nil nil) stream :csv :eof-error-p t :eof-value :eof
 		:key :read-from-string :type 'double-float
@@ -203,7 +203,7 @@ Instead, execute it, and access the new record from `record'"
 			       (return-from read-grid eof-value)))
 			 (pop record))
 	     :source-dims `(,rows ,cols)
-	     :destination-specification `((,*array-type* ,rows ,cols)
+	     :destination-specification `((,*default-grid-type* ,rows ,cols)
 					  ,type))
 	    (let ((data
 		   ;; Here record is a list (a b c ...).  In order for
@@ -217,7 +217,7 @@ Instead, execute it, and access the new record from `record'"
 		 do (next-record)
 	      	 until (eq record :eof)
 	      	 do (push record data))
-	      (make-grid `((,*array-type* nil) ,type)
+	      (make-grid `((,*default-grid-type* nil) ,type)
 			 :initial-contents (nreverse data))))))))
 
 

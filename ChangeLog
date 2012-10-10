@@ -1,3 +1,20 @@
+2012-10-10  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-utilities-unit-tests.lisp: Removed tests related to mapping
+	Changed `array-type' to `default-grid-type'
+	Changed `float-type' to `default-element-type'
+	(read-grid): Fixed test to be system independent
+	(read-grid): Fixed call to read-grid to latest syntax
+
+	* grid-operations/grid-io.lisp: Converting to antik/grid
+	Replaced `array-type' with `default-grid-type'
+	Replaced `float-type' with `default-element-type'
+
+	* mv-grid-utils.asd (mv-grid-utils): I will prune away facilities
+	for mapping (since antik does cl function mapping and
+	map-grid-utils does grid mapping) and makeing of sequences (since
+	sequence-grids does that).  All that is left for now is grid-io.
+
 2012-07-06  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* grid-operations/mixed-arg-vector-mappings.lisp (gpmap): Replaced

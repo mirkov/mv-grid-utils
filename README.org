@@ -2,25 +2,16 @@
 
 * Introduction and Background
 
-  This package is built on top of Liam Healy's GSD package. The
-  utilities in this package create grids, manipulate them, and map
-  functions over them.  Many of these functions are a thin veneer over
-  the functionality provided by ~GSD~.
+  This package is built on top of Liam Healy's GSD library.  It
+  contains utilities that are not already present in the
+  "map-grid-utils" and "sequence-grid" libraries.
 
-  Many of these utilities have counterparts in languages such as
-  Matlab, IDL, and others.  Since I am familiar with IDL, some of the
-  names come from that language.  However, I do not strive to fully
-  duplicate IDL/Matlab vector processing capabilities (see discussion
-  [[id:o2fjm4e1msf0][here]]).  Instead I try to apply existing CL's sequence syntax to
-  grids.
-
-  The syntax, user interface and function names in this package need
-  to be cleaned up.
+  Currently, this library only has grid input routines
 
   Several special variables control the behavior of the routines
-  - ~*array-type*~ :: determines the type of grids, native CL,
+  - ~*default-grid-type*~ :: determines the type of grids, native CL,
                       ~array~, or ~foreign-array~
-  - *float-type* :: determines the float type stored in grids,
+  - *default-element-type* :: determines the float type stored in grids,
                     ~single-float~ or ~double-float~
   - ~*integer-type*~ :: determines the integer type stored in grids,
                     ~(unsigned-byte 32)~
