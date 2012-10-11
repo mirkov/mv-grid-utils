@@ -12,14 +12,15 @@
   - functions that manipulate grids
   - functions that reduce grids
 
-  Several special variables control the behavior of the routines
+  Several special variables control the behavior of the routines.  The
+  first two are from antik/grid.
   - ~*default-grid-type*~ :: determines the type of grids, native CL,
                       ~array~, or ~foreign-array~
-  - *default-element-type* :: determines the float type stored in grids,
+  - ~*default-element-type*~ :: determines the float type stored in grids,
                     ~single-float~ or ~double-float~
-  - ~*integer-type*~ :: determines the integer type stored in grids,
+  - ~*default-integer-type*~ :: determines the integer type stored in grids,
                     ~(unsigned-byte 32)~
-  - ~*complex-type*~ :: determines the type of float that makes up
+  - ~*default-complex-type*~ :: determines the type of float that makes up
        complex variables, ~complex~ or ~(complex double-float)~
        
        
@@ -104,7 +105,7 @@
 *** Grid manipulations
     - ~reform~ return a matrix filled with vector elements
     - ~grid-coerce~ return a new grid with elements coerced to new type
-    - ~-grid-bind~ is a macro that binds elements of a grid to
+    - ~grid-bind~ is a macro that binds elements of a grid to
       variables
    
 ** Mapping over grids
@@ -154,29 +155,3 @@
    The development and testing is not always in sync, and development
    on one platform may introduce bugs on the other that do eventually
    get fixed.
-
-* On evaluating vectorized expressions
-  :PROPERTIES:
-  :ID:       o2fjm4e1msf0
-  :END:
-
-  Interpreted languages, such as IDL and Matlab improve loop
-  performance by allowing for vectorized code, such as ~cos(va+b)~
-  where ~va~ is a vector.  Evaluation of this expression will require
-  a construction of a temporary vector for storing ~va+b~.  In case of
-  large arrays and complex expressions, this leads to allocation and
-  deallocation of large chunks of memory.
-
-  In addition, the languages provide for creation of masks by applying
-  a test function to an array.  These masks can then be used to apply
-  an expression for only a sub-set of array elements.  This can lead
-  to different code being written for scalar arguments and for array
-  arguments.
-
-  I decided to avoid such usage.  One of the reasons for using CL is
-  its capability to compile to machine code (as is the case of SBCL on
-  Linux).
-
-  All of the mapping macros define the result variable, and then
-  construct and apply loops over the grids, using ~GSD~'s built-in
-  facilities.  I suspect that the looping can be improved.

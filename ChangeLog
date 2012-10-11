@@ -1,3 +1,16 @@
+2012-10-11  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-iterating-functions.lisp (position-element):
+	Fixed test by setting the search elements to double float as this
+	then matches the test array that was a double-float
+
+	* grid-operations/grid-manipulations.lisp (grid-bind): Fixed the
+	declaration of specs using the back-quote notation instead of the
+	previous explicit append & list combination.
+
+	* README.org: Typo fixes.  Removed block of text highlighting
+	differences with matrix oriented languages such as IDL and Matlab
+
 2012-10-10  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* README.org: Brought up to date, but with plenty room for
