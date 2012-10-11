@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-07-06 11:35:44 grid-iterating-functions.lisp>
+;; Time-stamp: <2012-10-10 21:12:03 grid-iterating-functions.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -48,8 +48,7 @@ index-fill-function."
 
 
 (define-test grid-position
-  (let ((vector #+clisp #(0 1 2 3 4 5)
-		#+sbcl #7m(0 1 2 3 4 5)))
+  (let ((vector  #(0 1 2 3 4 5)))
     (assert-equal 3
      (grid-position 3 vector))))
 
@@ -57,16 +56,14 @@ index-fill-function."
   (:documentation "Return item index in grid.  Also return the found value
 
 Default key is identity and default test is equal")
-  (:method (item (vector #+sbcl grid::mvector
-			 #+clisp vector)
+  #-hide(:method (item (vector vector)
 	    &key (key #'identity) (test #'equal))
     "Return vector index that matches item.  Also return item value"
     (iter:iter (iter:for v :vector-element vector)
 	       (iter:for i :vector-element-index vector)
 	       (when (funcall test item (funcall key v))
 		 (return-from grid-position (values i v)))))
-  (:method (item (matrix #+sbcl matrix
-			 #+clisp array)
+  #-hide(:method (item (matrix array)
 	    &key (key #'identity) (test #'equal))
     "Return matrix indices (cons row col) of match"
     (declare (ignore matrix item key test))
@@ -74,8 +71,7 @@ Default key is identity and default test is equal")
 
 
 (define-test grid-positions
-  (let ((vector #+clisp #(0 1 2 3 4 5)
-		#+sbcl #7m(0 1 2 3 4 5)))
+  (let ((vector  #(0 1 2 3 4 5)))
     (assert-equal '(3 4 5)
      (grid-positions 3 vector :test #'<=))))
 
@@ -83,8 +79,7 @@ Default key is identity and default test is equal")
   (:documentation "Return item indices in grid.  Also return the found values
 
 Default key is identity and default test is equal")
-  (:method (item (vector #+sbcl grid::mvector
-			 #+clisp vector)
+  (:method (item (vector vector)
 	    &key (key #'identity) (test #'equal))
     "Return vector index that matches item.  Also return item value"
     (iter:iter (iter:for v :vector-element vector)
@@ -93,8 +88,7 @@ Default key is identity and default test is equal")
 		 (iter:collect v into vs)
 		 (iter:collect i into is))
 	       (iter:finally (return (values is vs)))))
-  (:method (item (matrix #+sbcl matrix
-			 #+clisp array)
+  (:method (item (matrix array)
 	    &key (key #'identity) (test #'equal))
     "Return matrix indices (cons row col) of match"
     (declare (ignore matrix item key test))
@@ -102,8 +96,7 @@ Default key is identity and default test is equal")
 
 
 (define-test grid-position-if
-  (let ((vector #+clisp #(0 1 2 3 4 5)
-		#+sbcl #7m(0 1 2 3 4 5)))
+  (let ((vector #(0 1 2 3 4 5)))
     (assert-equal 3
      (grid-position-if #'(lambda (arg)
 			   (= arg 3))
@@ -115,16 +108,14 @@ Default key is identity and default test is equal")
   Also return the found value
 
 Default key is identity.")
-  (:method (predicate (vector #+sbcl grid::mvector
-			      #+clisp vector)
+  (:method (predicate (vector vector)
 	    &key (key #'identity))
     "Return vector index that matches item.  Also return item value"
     (iter:iter (iter:for v :vector-element vector)
 	       (iter:for i :vector-element-index vector)
 	       (when (funcall predicate (funcall key v))
 		 (return-from grid-position-if (values i v)))))
-  (:method (predicate (matrix #+sbcl matrix
-			      #+clisp array)
+  (:method (predicate (matrix array)
 	    &key (key #'identity))
     "Return matrix indices (cons row col) of match"
     (declare (ignore predicate matrix key))
@@ -160,20 +151,11 @@ distance between them"
   (:documentation "Return `grid's indices that satisfy the predicate.
   Supports grid's vectors and matrices, and cl's simple-vectors of
   rank q")
-  #+sbcl(:method ((vector vector-double-float) predicate)
+  
+  (:method ((vector vector) predicate)
     (iter:iter (iter:for v :vector-element vector)
 	       (iter:for i upfrom 0)
 	       (when (funcall predicate v)
-		 (iter:collect i))))
-  (:method ((vector #+sbcl simple-vector #+clisp vector) predicate)
-    (iter:iter (iter:for v :vector-element vector)
-	       (iter:for i upfrom 0)
-	       (when (funcall predicate v)
-		 (iter:collect i))))
-  #+sbcl(:method ((matrix matrix-double-float) predicate)
-    (iter:iter (iter:for m :matrix-element matrix)
-	       (iter:for i upfrom 0)
-	       (when (funcall predicate m)
 		 (iter:collect i)))))
 
 (defun match-vec-element (vector predicate)
@@ -183,30 +165,20 @@ distance between them"
 
 (define-test position-element
   (let ((vector (grid::test-grid-double-float
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5))))
     (assert-equal 3
-		  (position-element #+sbcl 3d0 #+clisp 3 vector)))
+		  (position-element 3 vector)))
   (let ((matrix (grid::test-grid-double-float
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5 6))))
     (assert-equal '(2 3)
-		  (position-element #+sbcl 23d0 #+clisp 23 matrix))))
+		  (position-element 23 matrix))))
 
 (defgeneric position-element (item grid &key key test)
   (:documentation "Return the index (or indices) of the first matching
 grid element.  Also returns the value for which the `test' returns t.
 Else return nil")
-  #+sbcl
-  (:method (item (vector mvector)
-	    &key (key #'identity) (test #'equal))
-    (iter:iter (iter:for v :vector-element vector)
-	       (iter:for i :vector-element-index vector)
-	       (when (funcall test item (funcall key v))
-		 (return-from position-element (values i v))))
-    nil)
   (:method (item (vector vector)
 	    &key (key #'identity) (test #'equal))
     (iter:iter (iter:for v :vector-element vector)
@@ -214,8 +186,7 @@ Else return nil")
 	       (when (funcall test item (funcall key v))
 		 (return-from position-element (values i v))))
     nil)
-  (:method (item (matrix #+clisp array
-			 #+sbcl matrix)
+  (:method (item (matrix array)
 	    &key (key #'identity) (test #'equal))
     "Return a list (row column) or nil"
     (iter:iter
@@ -231,20 +202,14 @@ Else return nil")
 
 (define-test grid-substitute
   (let ((matrix (test-grid-integer
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5 6))))
     (assert-grid-equal
-     #+clisp #2A((0 1 2 3 4 5)
+     #2A((0 1 2 3 4 5)
 		 (-10 11 12 13 14 15)
 		 (20 21 22 23 24 25)
 		 (30 31 32 33 34 35)
 		 (40 41 42 43 44 45))
-     #+sbcl #7m((0 1 2 3 4 5)
-		(-10 11 12 13 14 15)
-		(20 21 22 23 24 25)
-		(30 31 32 33 34 35)
-		(40 41 42 43 44 45))
      (grid-substitute -10 10 matrix))))
 
 
@@ -264,38 +229,25 @@ Else return nil")
 
 (define-test remove-row
   (let ((matrix (test-grid-integer
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5 6))))
     (assert-grid-equal
-     #+clisp #2A((10 11 12 13 14 15)
+     #2A((10 11 12 13 14 15)
 		 (20 21 22 23 24 25)
 		 (30 31 32 33 34 35)
 		 (40 41 42 43 44 45))
-     #+sbcl #7m((10 11 12 13 14 15)
-	       (20 21 22 23 24 25)
-	       (30 31 32 33 34 35)
-	       (40 41 42 43 44 45))
      (remove-row 0 matrix))
     (assert-grid-equal
-     #+clisp #2A((0 1 2 3 4 5)
+     #2A((0 1 2 3 4 5)
 		 (10 11 12 13 14 15)
 		 (20 21 22 23 24 25)
 		 (30 31 32 33 34 35))
-     #+sbcl #7m((0 1 2 3 4 5)
-	       (10 11 12 13 14 15)
-	       (20 21 22 23 24 25)
-	       (30 31 32 33 34 35))
      (remove-row 4 matrix))
     (assert-grid-equal
-     #+clisp #2A((0 1 2 3 4 5)
+     #2A((0 1 2 3 4 5)
 		 (10 11 12 13 14 15)
 		 (30 31 32 33 34 35)
 		 (40 41 42 43 44 45))
-     #+sbcl #7m((0 1 2 3 4 5)
-	       (10 11 12 13 14 15)
-	       (30 31 32 33 34 35)
-	       (40 41 42 43 44 45))
      (remove-row 2 matrix))))
 
 (defun remove-row (row matrix)
@@ -318,42 +270,27 @@ Else return nil")
 
 
 (define-test remove-col
-  (let ((matrix (test-grid-integer #+clisp 'array #+sbcl 'foreign-array '(5 6))))
+  (let ((matrix (test-grid-integer 'array '(5 6))))
     (assert-grid-equal
-     #+clisp #2A((1 2 3 4 5)
+     #2A((1 2 3 4 5)
 		 (11 12 13 14 15)
 		 (21 22 23 24 25)
 		 (31 32 33 34 35)
 		 (41 42 43 44 45))
-     #+sbcl #7m((1 2 3 4 5)
-		(11 12 13 14 15)
-		(21 22 23 24 25)
-		(31 32 33 34 35)
-		(41 42 43 44 45))
      (remove-col 0 matrix))
     (assert-grid-equal
-     #+clisp #2A((0 1 2 3 4)
+     #2A((0 1 2 3 4)
 		 (10 11 12 13 14)
 		 (20 21 22 23 24)
 		 (30 31 32 33 34)
 		 (40 41 42 43 44))
-     #+sbcl #7m((0 1 2 3 4)
-		(10 11 12 13 14)
-		(20 21 22 23 24)
-		(30 31 32 33 34)
-		(40 41 42 43 44))
      (remove-col 5 matrix))
     (assert-grid-equal
-     #+clisp #2A((0 1 3 4 5)
+     #2A((0 1 3 4 5)
 		 (10 11 13 14 15)
 		 (20 21 23 24 25)
 		 (30 31 33 34 35)
 		 (40 41 43 44 45))
-     #+sbcl #7m((0 1 3 4 5)
-		(10 11 13 14 15)
-		(20 21 23 24 25)
-		(30 31 33 34 35)
-		(40 41 43 44 45))
      (remove-col 2 matrix))))
 
 (defun remove-col (col matrix)
@@ -376,18 +313,13 @@ Else return nil")
 
 (define-test remove-row-if
   (let ((matrix (test-grid-integer
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5 6))))
     (assert-grid-equal
-     #+clisp #2A((0 1 2 3 4 5)
+     #2A((0 1 2 3 4 5)
 		 (10 11 12 13 14 15)
 		 (30 31 32 33 34 35)
 		 (40 41 42 43 44 45))
-     #+sbcl #7m((0 1 2 3 4 5)
-		(10 11 12 13 14 15)
-		(30 31 32 33 34 35)
-		(40 41 42 43 44 45))
      (remove-row-if #'(lambda (row)
 			(position-element 23 row))
 		    matrix))))
@@ -412,20 +344,14 @@ is returned"
 
 (define-test remove-col-if
   (let ((matrix (test-grid-integer
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5 6))))
     (assert-grid-equal
-     #+clisp #2A(( 0  1  2  4  5)
+     #2A(( 0  1  2  4  5)
 	 (10 11 12 14 15)
 	 (20 21 22 24 25)
 	 (30 31 32 34 35)
 	 (40 41 42 44 45))
-     #+sbcl #7m(( 0  1  2  4  5)
-	       (10 11 12 14 15)
-	       (20 21 22 24 25)
-	       (30 31 32 34 35)
-	       (40 41 42 44 45))
      (remove-col-if #'(lambda (col)
 			(position-element 23 col))
 		    matrix))))
@@ -451,12 +377,10 @@ copy is returned"
 
 (define-test find-row
   (let ((matrix (test-grid-integer
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5 6))))
     (assert-grid-equal
-     #+clisp #(20 21 22 23 24 25)
-     #+sbcl #7m(20 21 22 23 24 25)
+     #(20 21 22 23 24 25)
      (find-row 22 matrix))))
 
 
@@ -471,12 +395,10 @@ copy is returned"
 
 (define-test find-col
   (let ((matrix (test-grid-integer
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5 6))))
     (assert-grid-equal
-     #+clisp #(2 12 22 32 42)
-     #+sbcl #7m(2 12 22 32 42)
+     #(2 12 22 32 42)
      (find-col 22 matrix))))
 
 (defun find-col (item matrix &key (key #'identity) (test #'equal))
@@ -489,8 +411,7 @@ copy is returned"
 
 (define-test find-row-if
   (let ((matrix (test-grid-integer
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5 6))))
     (assert-grid-equal
      #(20 21 22 23 24 25)
@@ -510,8 +431,7 @@ copy is returned"
 
 (define-test find-col-if
   (let ((matrix (test-grid-integer
-		 #+clisp 'array
-		 #+sbcl 'foreign-array
+		 'array
 		 '(5 6))))
     (assert-grid-equal
      #(2 12 22 32 42)
@@ -542,4 +462,4 @@ copy is returned"
 (define-test reverse-vector
   (assert-grid-equal
    #(4 3 2 1 0)
-   (reverse-vector (intgen 5))))
+   (reverse-vector #(0 1 2 3 4))))

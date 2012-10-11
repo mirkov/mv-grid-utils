@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-10-10 16:09:09EDT grid-io.lisp>
+;; Time-stamp: <2012-10-10 21:31:26 grid-io.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -51,13 +51,14 @@ Consult their documentation for details.
 
 (define-test read-grid
   (with-open-file (stream
-		   #+cysshd1 "/home/mv/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.txt"
-		   #-cysshd1 "/home/my-software-add-ons/my-lisp/mv-grid-utils/grid-operations/2d-grid-data.txt"
-		   :direction :input) 
+		   (merge-pathnames
+		    "grid-operations/2d-grid-data.txt"
+		    (asdf:system-source-directory "mv-grid-utils"))
+		   :direction :input)
     (assert-grid-equal 
      (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
-     (read-grid '(2 3) stream t :eof-error-p t))))
+     (read-grid '(2 3) stream t ))))
 
 
 
@@ -72,7 +73,7 @@ Default type is 'double-float"
   (assert (= 2 (length dimensions)) ()
 	  "DIMENSIONS: ~a must be alist of length 2" dimensions)
   (assert (and (first dimensions)
-	       (second dimensions)) ()
+	       (cl:second dimensions)) ()
 	       "Elements of DIMENSIONS: ~a must be non-nil" dimensions)
   (map-grid :source #'(lambda (&rest args)
 			     (declare (ignore args))
@@ -104,6 +105,11 @@ Default type is 'double-float"
      (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
      (read-grid '(2 nil) stream :csv :key :read-from-string :type 'double-float)))
+  (with-csv-table (stream)
+    (assert-grid-equal 
+     (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
+		      :initial-contents '((1d0 2d0 3d0) (4d0 5d0 6d0)))
+     (read-grid '(nil 3) stream :csv :key :read-from-string :type 'double-float)))
   (with-csv-table (stream)
     (assert-grid-equal 
      (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)

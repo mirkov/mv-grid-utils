@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-07-05 23:14:51 grid-manipulations.lisp>
+;; Time-stamp: <2012-10-10 20:49:04 grid-manipulations.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -24,16 +24,17 @@
 (defun reform (vector rows columns)
   "Remap `vector' into a `rows'X`columns' matrix"
   (map-grid :source vector
-		 :destination-specification `((,*array-type* ,rows ,columns)
-					      ,*float-type*)))
+		 :destination-specification
+		 `((,*default-grid-type* ,rows ,columns)
+		   ,*default-element-type*)))
 
 (defun grid-coerce (grid type)
   "Return new grid, with all elements coerced to the new type
 
-The array type is controlled by *array-type*"
+The array type is controlled by *default-grid-type*"
   (map-grid :source grid
 	    :destination-specification
-	    `((,*array-type* ,@(dimensions grid))
+	    `((,*default-grid-type* ,@(dimensions grid))
 	      ,type)))
 
 (define-test grid-bind
@@ -51,14 +52,14 @@ The array type is controlled by *array-type*"
 Bind each var in vars to its corresponding element in the grid element list
 
 Currently, the grid type (array or foreign-array) and the element type
-are determined by *array-type* and *float-type "
+are determined by *default-grid-type* and *default-element-type "
   (alexandria:with-gensyms (dimensions affi walker tester specs)
     (alexandria:once-only (grid)
       `(let* (,@vars
 	      (,dimensions (dimensions ,grid))
 	      (,affi (grid::affi ,grid))
-	      (,specs (list (append (list ',*array-type*) ,dimensions)
-			    ',*float-type*)))
+	      (,specs (list (append (list ',*default-grid-type*) ,dimensions)
+			    ',*default-element-type*)))
 	 ,@(loop for var in vars
 	      collect `(setf ,var (make-grid ,specs)))
 	 
@@ -66,7 +67,7 @@ are determined by *array-type* and *float-type "
 	   (do* ((i (funcall ,walker) (funcall ,walker)))
 		((not i))
 	     (when i
-	       (let ((list (gref* ,grid i)))
+	       (let ((list (aref* ,grid i)))
 		 ,@(loop for var in vars
-		      collect `(setf (gref* ,var i) (pop list)))))))
+		      collect `(setf (aref* ,var i) (pop list)))))))
 	 ,@body))))

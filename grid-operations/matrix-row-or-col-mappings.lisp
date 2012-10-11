@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-07-03 06:45:50 grid-row-or-col-mappings.lisp>
+;; Time-stamp: <2012-10-10 21:05:33 matrix-row-or-col-mappings.lisp>
 ;; 
 ;; Copyright 2012 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -22,11 +22,11 @@
 
 (define-test reduce-rows/cols
   (assert-grid-equal 
-   (grid::make-grid `((,*array-type*) ,*float-type*)
+   (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		    :initial-contents '(30d0 33d0 36d0 39d0))
    (reduce-columns *array-3-4-double-float*))
   (assert-grid-equal 
-   (grid::make-grid `((,*array-type*) ,*float-type*)
+   (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		    :initial-contents '((6d0 46d0 86d0)))
    (reduce-rows *array-3-4-double-float*)))
 
@@ -34,7 +34,7 @@
 (defun reduce-rows (matrix &optional (func #'+))
   "Return a column vector with each element a result reducing that row
 using `func' (default #'+)"
-  (make-grid `((,*array-type* 1 ,(first (dimensions matrix)))
+  (make-grid `((,*default-grid-type* 1 ,(first (dimensions matrix)))
 		    double-float)
 	     :initial-contents
 	     ;; In order to create a column array, I have to return a
@@ -51,7 +51,7 @@ using `func' (default #'+)"
 (defun reduce-columns (matrix &optional (func #'+))
   "Return a row vector with each element a result of reducing the
 column using `func' (default #'+)"
-  (make-grid `((,*array-type* ,(second (dimensions matrix)))
+  (make-grid `((,*default-grid-type* ,(cl:second (dimensions matrix)))
 		    double-float)
 	     :initial-contents
 	     (iter:iter
@@ -65,12 +65,12 @@ column using `func' (default #'+)"
   (assert-equal 138d0
    (reduce-vector
     #'+
-    (grid::make-grid `((,*array-type*) ,*float-type*)
+    (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		     :initial-contents '(6d0 46d0 86d0))))
   (assert-equal 148d0
    (reduce-vector
     #'+
-    (grid::make-grid `((,*array-type*) ,*float-type*)
+    (grid::make-grid `((,*default-grid-type*) ,*default-element-type*)
 		     :initial-contents '(6d0 46d0 86d0))
     :initial-value 10d0)))
 
@@ -84,7 +84,7 @@ column using `func' (default #'+)"
 
 (defun map-rows (function matrix)
   "Map FUNCTION over Matrix rows, returning results as a vector "
-;;  (make-grid (make-grid `((,*array-type* ,(first (dimensions matrix)))
+;;  (make-grid (make-grid `((,*default-grid-type* ,(first (dimensions matrix)))
 ;;			  double-float)
 ;;	     :initial-contents
 	     (iter:iter

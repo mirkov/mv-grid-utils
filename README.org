@@ -2,11 +2,15 @@
 
 * Introduction and Background
 
-  This package is built on top of Liam Healy's GSD library.  It
+  This library is built on top of Liam Healy's antik/grid library.  It
   contains utilities that are not already present in the
   "map-grid-utils" and "sequence-grid" libraries.
 
-  Currently, this library only has grid input routines
+  The library has the following types of routines
+  - grid io (input only so far)
+  - iterating functions for grids
+  - functions that manipulate grids
+  - functions that reduce grids
 
   Several special variables control the behavior of the routines
   - ~*default-grid-type*~ :: determines the type of grids, native CL,
@@ -19,7 +23,7 @@
        complex variables, ~complex~ or ~(complex double-float)~
        
        
-  As with ~GSD~, loading the ~foreign-array~ package prior to loading
+  As with ~grid~, loading the ~foreign-array~ package prior to loading
   ~grid-utils~ enables the use of foreign arrays.
   
 * Functionality overview
@@ -70,34 +74,12 @@
 
     
 
-*** Mapping functions
- | mapcar | gmap  |   |   |   |
- |        | gsmap |   |   |   |
- | mapc   | gmapc |   |   |   |
-
  All operations are non-destructive -- the old grid is never
  modified.
  There are additional functions such as reverse-vector
 
 
-   
-** Sequence generation
 
-*** Index generation functions
-    The following functions generate a sequence of integers
-    | Name      | Sequence type             | Starting integer |
-    |-----------+---------------------------+------------------|
-    | ~intgen~  | signed integer sequence   |                0 |
-    | ~indgen~  | unsigned integer sequence |                0 |
-    | ~natgen~  | natural number sequence   |                1 |
-    | ~findgen~ | ~*float-type*~            |                0 |
-    | ~cindgen~ | ~*complex-type*~          |                0 |
-
-*** Sequence generation functions
-    | Name   | Type               |
-    |--------+--------------------|
-    | ~lseq~ | Linear sequence    |
-    | ~gseq~ | Geometric sequence |
 
 ** Grid iterating functions
 
@@ -135,44 +117,6 @@
    a mixture of vectors and scalars, or construct a matrix from a
    mapping over two vectors.
    
-*** Vector mappings
-    The following functions map over one or more vectors
-    - ~gmap~ maps a function over a single grid, returning a new grid
-    - ~gsmap~ is like ~gmap~, except that operates on one or more
-      vectors.  It should really be called ~gmap~
-    - ~gmapc~ maps a function over one or more vectors, returning the
-      first vector.  ~gmapc~ is used for function's side-effects.
-
-*** Mixed argument vector mappings
-   The following macros are used to  map over multiple arguments, one
-   or two of which are vectors.  The general form is of the form
-   #+BEGIN_SRC lisp
-(xymap (fun arg1 @!arg2 arg3) vecarg)
-   #+END_SRC
-   In other words, the macro ~xymap~ has as first argument the actual
-   function to be called with the full argument list.  The vector
-   argument(s) is/are marked with a `@.' like pattern.  The rest of
-   ~xymap~ arguments is one or more vectors, that will be used to map
-   over the function.
-
-   Here is an example with function ~gpmap~
-   #+BEGIN_SRC lisp
-   (gpmap (foo x @1y @2z) vec1 vec2)
-   #+END_SRC
-   This macro will apply ~foo~ on ~x~ and successive elements of
-   ~vec1~ and ~vec2~, accumulating the results in a vector of
-   dimensions specified by ~vec1~
-
-   - ~gcmap~ can map over only one vector
-   - ~gpmap~ will map over one or more vectors.  I should consider
-     removing ~gcmap~ in favor of ~gpmap~.
-
-*** Mixed argument orthogonal vector mappings
-    
-**** ~gmap2d~
-     This function is similar to ~gpmap~, except that it returns a
-     matrix where element in position (i j) is from i-th element of
-     vector 1 and j-th element of vector 2.
 *** Mapping over matrix rows or columns
     - ~reduce-vector~ reduces a vector
     - ~reduce-columns~ loops over columns, reducing each.  The result

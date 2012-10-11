@@ -1,5 +1,52 @@
 2012-10-10  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
+	* README.org: Brought up to date, but with plenty room for
+	improvement.
+
+	* mv-grid-utils.asd (mv-grid-utils): Re-structured modules.  New
+	module `setup' does the initializing.
+
+	* setup/grid-utilities-setup.lisp: Renamed `*integer-type*' and
+	`*complex-type*' to `*default-integer-type*' and
+	`*default-complex-type*'
+
+	* setup/grid-utilities-unit-tests.lisp: I had test grids defined
+	in multiple places.  Moved them all here
+
+	* setup/grid-utilities-setup.lisp (*array-type* *float-type*):
+	Removed defparameter statements since these are taken over by
+	grid's *default-grid-type* and *default-element-type*
+
+	* grid-io/grid-utilities-unit-tests.lisp (read-csv-grid): Removed
+	this test in favor of a similar one in grid-io.lisp.  The latter
+	one uses a read-from-string and is more portable
+	(reduce-rows/cols): Removed this test in favor of identical one in
+	matrix-row-or-col-mappings.lisp
+	(read-grid): Removed this test in favor of identical one in
+	grid-io.lisp which is more portable.
+
+	* grid-operations/grid-iterating-functions.lisp (reverse-vector):
+	Replaced a call to intgen with explicit vector
+
+	* grid-io/grid-io.lisp (read-grid): `cl:second' instead of plain
+	`second'
+
+	* grid-operations/matrix-row-or-col-mappings.lisp: 
+	Replaced *array-type* with *default-grid-type*
+	Replaced *float-type* with *default-element-type*
+	(reduce-columns): Have to specify cl:second since antik is
+	shadowing it
+
+	* grid-operations/grid-manipulations.lisp: Replaced `gref' with `aref'
+	Replaced *array-type* with *default-grid-type*
+	Replaced *float-type* with *default-element-type*
+
+	* grid-operations/grid-iterating-functions.lisp: Removed
+	specializers on sbcl.  All tests are on CL arrays
+
+	* mv-grid-utils.asd (mv-grid-utils): moved module grid-io into its
+	directory
+
 	* grid-operations/grid-utilities-unit-tests.lisp: Removed tests related to mapping
 	Changed `array-type' to `default-grid-type'
 	Changed `float-type' to `default-element-type'

@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2012-10-10 16:56:38EDT mv-grid-package-def.lisp>
+;; Time-stamp: <2012-10-10 21:35:39 mv-grid-package-def.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -28,10 +28,3 @@ grid input only."))
 
 (antik:make-user-package :mv-grid)
 
-#|
-(defpackage :mv-grid-unit-tests
-  (:use :cl :lisp-unit  :mv-grid :mv-gnuplot))
-|#
-;;;; Local variables: 
-;;;; change-log-default-name: "~/my-software-add-ons/my-lisp/mv-gsll/ChangeLog"
-;;;; End:

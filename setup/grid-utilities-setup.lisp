@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-03-08 13:15:47 grid-utilities-setup.lisp>
+;; Time-stamp: <2012-10-10 21:31:26 grid-utilities-setup.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 
 (in-package :mv-grid)
 
-(export '(*array-type* *float-type* *integer-type* *complex-type*))
+(export '(*default-integer-type* *default-complex-type*))
 #|(export '(
 	 *array-type* *float-type* *integer-type* *complelx-type*
 	 indgen natgen findgen dindgen lseq gseq gmap gsmap
@@ -35,40 +35,18 @@
 	 read-grid
 	 reduce-rows reduce-columns))|#
 
-(defparameter *array-type* #+sbcl 'foreign-array
-	      #+clisp 'array
-  "Default array type, either foreign-array (default for GSLL use) or
-  array (native CL) ")
 
-(defparameter *float-type* 'double-float
-  "Default float type, either single-float or double-float (default
-  for GSLL use)")
-
-(defparameter *integer-type* '(unsigned-byte 32)
+(defparameter *default-integer-type* '(unsigned-byte 32)
   "Default integer byte length")
 
-(defparameter *complex-type* #+sbcl '(complex double-float)
+(defparameter *default-complex-type* #+sbcl '(complex double-float)
 	      #+clisp 'complex
 	      "Default complex type")
 
 
 
 
-(defparameter *array-3-4-double-float*
-  (grid::test-grid-double-float *array-type* '(3 4)))
 
-
-
-(defparameter *array-3-4-double-float*
-  (grid::test-grid-double-float *array-type* '(3 4)))
-
-(defparameter *vector-4-double-float*
-  (grid::test-grid-double-float *array-type* '(4)))
-
-(defparameter *0-1-2* (grid::make-grid `((,*array-type*) ,*integer-type*)
-			     :initial-contents '(0 1 2)))
-(defparameter *0-2-4* (grid::make-grid `((,*array-type*) ,*integer-type*)
-				      :initial-contents '(0 2 4)))
 
 
 
