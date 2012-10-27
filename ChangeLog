@@ -1,3 +1,10 @@
+2012-10-27  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* grid-operations/grid-iterating-functions.lisp
+	(position-element): Changed tests yet again (see entry on
+	2012-10-11).  For clisp, I search for an integer, while for
+	others, I search for a double-float.
+
 2012-10-11  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* grid-operations/grid-iterating-functions.lisp (position-element):
